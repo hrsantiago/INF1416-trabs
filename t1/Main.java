@@ -2,7 +2,7 @@ import java.util.Arrays;
 import java.security.*;
 import javax.crypto.*;
 
-public class t1 {
+public class Main {
 
   public static void main(String[] args) throws Exception {
     if(args.length !=1) {
