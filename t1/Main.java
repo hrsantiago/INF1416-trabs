@@ -6,7 +6,7 @@ public class Main {
 
   public static void main(String[] args) throws Exception {
     if(args.length !=1) {
-      System.err.println("Usage: java t1 text");
+      System.err.println("Usage: java Main text");
       System.exit(1);
     }
 
