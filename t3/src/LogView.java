@@ -1,11 +1,16 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.io.*;
+import java.nio.file.*;
+import java.nio.charset.*;
 
 public class LogView
 {
+  static String readFile(String path, Charset encoding) throws IOException
+  {
+    byte[] encoded = Files.readAllBytes(Paths.get(path));
+    return new String(encoded, encoding);
+  }
+
   public static void main(String[] args) throws ClassNotFoundException
   {
     // load the sqlite-JDBC driver using the current class loader
@@ -19,11 +24,8 @@ public class LogView
       Statement statement = connection.createStatement();
       statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-      statement.executeUpdate("drop table if exists person");
-      statement.executeUpdate("create table person (id integer, name string)");
-      statement.executeUpdate("insert into person values(1, 'leo')");
-      statement.executeUpdate("insert into person values(2, 'yui')");
-      ResultSet rs = statement.executeQuery("select * from person");
+      statement.executeUpdate(readFile("schema.sql", StandardCharsets.UTF_8));
+      ResultSet rs = statement.executeQuery("select * from groups");
       while(rs.next())
       {
         // read the result set
@@ -35,6 +37,9 @@ public class LogView
     {
       // if the error message is "out of memory", 
       // it probably means no database file is found
+      System.err.println(e.getMessage());
+    }
+    catch(IOException e) {
       System.err.println(e.getMessage());
     }
     finally
