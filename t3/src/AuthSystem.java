@@ -1,4 +1,5 @@
 import core.Manager;
+import view.Window;
 
 public class AuthSystem
 {
@@ -7,6 +8,10 @@ public class AuthSystem
     Manager manager = Manager.getInstance();
     if(!manager.initialize())
       return;
+
+    Window window = new Window();
+    window.setTitle("Auth System");
+    window.setVisible(true);
 
     try {
       //manager.loadSchema();
