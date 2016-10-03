@@ -1,6 +1,6 @@
 import core.Manager;
 
-public class LogView
+public class AuthSystem
 {
   public static void main(String[] args)
   {
@@ -10,8 +10,12 @@ public class LogView
 
     try {
       //manager.loadSchema();
-      manager.loadMessages();
-      manager.loadRegistries();
+      manager.addRegistry(1001,-1,"");
+      manager.loadGroups();
+
+      // do stuff
+
+      manager.addRegistry(1002,-1,"");
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -24,6 +28,5 @@ public class LogView
         e.printStackTrace();
       }
     }
-
   }
 }

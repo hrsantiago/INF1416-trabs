@@ -1,3 +1,5 @@
+-- When done, only create tables if they do not exist.
+
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS registries;
