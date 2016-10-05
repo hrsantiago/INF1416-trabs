@@ -1,4 +1,5 @@
 import core.Manager;
+import core.User;
 import view.Window;
 
 public class AuthSystem
@@ -17,6 +18,10 @@ public class AuthSystem
       //manager.loadSchema();
       manager.addRegistry(1001,-1,"");
       manager.loadGroups();
+
+      // test password
+      User user = manager.getUser(1);
+      System.out.println(user.isPasswordValid("123456"));
 
       // do stuff
 

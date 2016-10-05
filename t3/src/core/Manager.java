@@ -137,10 +137,27 @@ public class Manager
     {
       String name = rs.getString("name");
       String login = rs.getString("login");
+      int groupId = rs.getInt("group_id");
+      String password = rs.getString("password");
+      String salt = rs.getString("salt");
+      String certificate = rs.getString("certificate");
+      String privateKey = rs.getString("private_key");
+      String directory = rs.getString("directory");
+      int accesses = rs.getInt("num_accesses");
+      int queries = rs.getInt("num_queries");
 
       User user = new User();
       user.setName(name);
       user.setLogin(login);
+      user.setGroup(m_groups.get(groupId));
+      user.setPassword(password);
+      user.setSalt(salt);
+      user.setCertificate(certificate);
+      user.setPrivateKey(privateKey);
+      user.setDirectory(directory);
+      user.setNumAccesses(accesses);
+      user.setNumQueries(queries);
+
       m_users.put(id, user);
     }
   }
