@@ -31,12 +31,15 @@ public class Window extends JFrame implements DigitalKeyboardListener {
   private DigitalKeyboard dk;
   private User currentUser;
 
+  private Map<String, Long> blockedUsers;
+
   private JPanel m_loginPanel;
 
   public Window() {
     createLoginPanel();
     setupWindow();
 
+    blockedUsers = new HashMap<String, Long>();
     passwordErrors = 0;
     m_loginPanel.setVisible(true);
   }
@@ -68,6 +71,16 @@ public class Window extends JFrame implements DigitalKeyboardListener {
       public void actionPerformed(ActionEvent e) {
           String login = loginField.getText();
 
+          if(blockedUsers.containsKey(login)){
+            long timeLocked = blockedUsers.get(login);
+            if(System.currentTimeMillis() - timeLocked > 2 * 60 * 1000){
+              blockedUsers.remove(login);
+            } else {
+              JOptionPane.showMessageDialog(null, "Usuário bloqueado.");
+              return;
+            }
+          }
+
           Manager manager = Manager.getInstance();
           int userId = manager.getUserId(login);
           if(userId != -1) {
@@ -90,6 +103,11 @@ public class Window extends JFrame implements DigitalKeyboardListener {
     m_loginPanel = p;
   }
 
+  private void blockUser() {
+    if(currentUser != null)
+      blockedUsers.put(currentUser.getLogin(), System.currentTimeMillis());
+  }
+
   public void onCombinationsPrepared(List<String> combinations) {
     boolean passOk = false;
     for (String s : combinations){
@@ -107,7 +125,7 @@ public class Window extends JFrame implements DigitalKeyboardListener {
       dk.dismiss();
       passwordErrors++;
       if(passwordErrors >= 3){
-        //TODO: adicionar usuario como locked;
+        blockUser();
         currentUser = null;
         setVisible(true);
         m_loginPanel.setVisible(true);
