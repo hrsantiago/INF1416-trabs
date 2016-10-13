@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS registries;
 DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS tanlist;
 
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
@@ -38,6 +39,15 @@ CREATE TABLE registries (
 CREATE TABLE messages (
   id INTEGER PRIMARY KEY,
   text TEXT NOT NULL
+);
+
+CREATE TABLE tanlist (
+  id INTEGER,
+  user_id INTEGER,
+  password TEXT NOT NULL,
+  used INTEGER DEFAULT 0,
+  PRIMARY KEY(id, user_id),
+  FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
 INSERT INTO groups VALUES(1, 'Administrador');

@@ -27,6 +27,7 @@ public class Manager
   Map<Integer,Group> m_groups = new HashMap<Integer,Group>();
   Map<Integer,Message> m_messages = new HashMap<Integer,Message>();
   ArrayList<Registry> m_registries = new ArrayList<Registry>();
+  User m_currentUser = null;
 
   public boolean initialize()
   {
@@ -39,7 +40,7 @@ public class Manager
     }
 
     try {
-      m_connection = DriverManager.getConnection("jdbc:sqlite:sample.db");
+      getConnection();
     }
     catch(SQLException e) {
       e.printStackTrace();
@@ -59,16 +60,23 @@ public class Manager
     }
   }
 
+  public Connection getConnection() throws SQLException
+  {
+    if(m_connection == null || m_connection.isClosed())
+      m_connection = DriverManager.getConnection("jdbc:sqlite:sample.db");
+    return m_connection;
+  }
+
   public void loadSchema() throws SQLException, IOException
   {
-    Statement statement = m_connection.createStatement();
+    Statement statement = getConnection().createStatement();
     statement.setQueryTimeout(30);
     statement.executeUpdate(readFile("schema.sql", StandardCharsets.UTF_8));
   }
 
   public void loadGroups() throws SQLException
   {
-    Statement statement = m_connection.createStatement();
+    Statement statement = getConnection().createStatement();
     statement.setQueryTimeout(30);
     ResultSet rs = statement.executeQuery("select * from groups");
     while(rs.next())
@@ -83,7 +91,7 @@ public class Manager
 
   public void loadMessages() throws SQLException
   {
-    Statement statement = m_connection.createStatement();
+    Statement statement = getConnection().createStatement();
     statement.setQueryTimeout(30);
     ResultSet rs = statement.executeQuery("select * from messages");
     while(rs.next())
@@ -97,7 +105,7 @@ public class Manager
 
   public void addRegistry(int messageId, int userId, String filename) throws SQLException
   {
-    Statement statement = m_connection.createStatement();
+    Statement statement = getConnection().createStatement();
     statement.setQueryTimeout(30);
     statement.executeUpdate("insert into registries(message_id,user_id,filename) values("+messageId+","+userId+",'"+filename+"')");
     // TODO escape filename
@@ -105,7 +113,7 @@ public class Manager
 
   public void loadRegistries() throws SQLException
   {
-    Statement statement = m_connection.createStatement();
+    Statement statement = getConnection().createStatement();
     statement.setQueryTimeout(30);
     ResultSet rs = statement.executeQuery("select * from registries");
     while(rs.next())
@@ -130,7 +138,7 @@ public class Manager
 
   public void loadUser(int id) throws SQLException
   {
-    Statement statement = m_connection.createStatement();
+    Statement statement = getConnection().createStatement();
     statement.setQueryTimeout(30);
     ResultSet rs = statement.executeQuery("select * from users where id = " + id);
     while(rs.next())
@@ -170,6 +178,41 @@ public class Manager
       user = m_users.get(id);
     }
     return user;
+  }
+
+  public int getUserId(String login) throws SQLException
+  {
+    Statement statement = getConnection().createStatement();
+    statement.setQueryTimeout(30);
+    ResultSet rs = statement.executeQuery("select id from users where login = '" + login + "'"); // TODO escape login
+    while(rs.next())
+    {
+      return rs.getInt("id");
+    }
+    return -1;
+  }
+
+  public boolean login(String login, String password)
+  {
+    try {
+      int userId = getUserId(login);
+      if(userId == -1)
+        return false;
+
+      User user = getUser(userId);
+      if(user == null)
+        return false;
+
+      if(!user.isPasswordValid(password))
+        return false;
+
+      m_currentUser = user;
+      return true;
+    }
+    catch(SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
   }
 
   static String readFile(String path, Charset encoding) throws IOException

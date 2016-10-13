@@ -1,4 +1,4 @@
-import src.core.Manager;
+import core.Manager;
 
 public class LogView
 {
