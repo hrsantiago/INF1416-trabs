@@ -21,7 +21,7 @@ public class AuthSystem
 
       // test password
       User user = manager.getUser(1);
-      System.out.println(user.isPasswordValid("123456"));
+      System.out.println(user.isPasswordValid("BAGEGA"));
 
       // do stuff
 

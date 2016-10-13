@@ -78,7 +78,7 @@ public class Window extends JFrame implements DigitalKeyboardListener {
             
             dk = new DigitalKeyboard(Window.this);
             dk.show();
-            //setVisible(false);
+            setVisible(false);
           }
           else
             JOptionPane.showMessageDialog(null, "Login or password invalid.");
@@ -92,43 +92,30 @@ public class Window extends JFrame implements DigitalKeyboardListener {
 
   public void onCombinationsPrepared(List<String> combinations) {
     boolean passOk = false;
-    
-    try{
-      MessageDigest md = MessageDigest.getInstance("MD5");
-
-      for (String s : combinations){
-        String combsalt = s + currentUser.getSalt();
-        // DEBUG
-        //System.out.println(combsalt);
-
-        byte[] digest = md.digest(combsalt.getBytes());
-        // converte o digist para hexadecimal
-        String digestHex = User.byteToHex(digest);
-        if(currentUser.getPassword().equals(digestHex)){
-          passOk = true;
-          break;
-        }
+    for (String s : combinations){
+      if(currentUser.isPasswordValid(s)){
+        passOk = true;
+        break;
       }
-      if(passOk){
-        dk.dismiss();
-        System.out.println("Senha correta!");
-      } else {
-        dk.dismiss();
-        passwordErrors++;
-        if(passwordErrors >= 3){
-          //TODO: adicionar usuario como locked;
-          currentUser = null;
-          m_loginPanel.setVisible(true);
-        } else {
-          dk = new DigitalKeyboard(Window.this);
-          dk.show();
-        }
-      }
-    } catch (NoSuchAlgorithmException ex) {
-      ex.printStackTrace();
-      dk.dismiss();
-      System.out.println("ERROR! NoSuchAlgorithmException MD5");
     }
-    
+    if(passOk){
+      dk.dismiss();
+      System.out.println("Senha correta!");
+      JOptionPane.showMessageDialog(null, "Senha correta!.");
+      setVisible(true);
+    } else {
+      dk.dismiss();
+      passwordErrors++;
+      if(passwordErrors >= 3){
+        //TODO: adicionar usuario como locked;
+        currentUser = null;
+        setVisible(true);
+        m_loginPanel.setVisible(true);
+      } else {
+        JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + String.valueOf(3-passwordErrors));
+        dk = new DigitalKeyboard(Window.this);
+        dk.show();
+      }
+    }
   }
 }
