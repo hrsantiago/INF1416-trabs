@@ -2,11 +2,9 @@ package core;
 
 public class Group
 {
-  public Group() {}
+	private String m_name;
 
-  public void setName(String name) { m_name = name; }
+	public void setName(String name) { m_name = name; }
 
-  public String getName() { return m_name; }
-
-  private String m_name;
+	public String getName() { return m_name; }	
 }
