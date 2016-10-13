@@ -170,31 +170,39 @@ public class Manager
     }
   }
 
-  public User getUser(int id) throws SQLException
+  public User getUser(int id)
   {
-    User user = m_users.get(id);
-    if(user == null) {
-      loadUser(id);
-      user = m_users.get(id);
+    try{
+      User user = m_users.get(id);
+      if(user == null) {
+        loadUser(id);
+        user = m_users.get(id);
+      }
+      return user;
+    } catch(SQLException ex) {
+      return null;
     }
-    return user;
+    
   }
 
-  public int getUserId(String login) throws SQLException
+  public int getUserId(String login)
   {
-    Statement statement = getConnection().createStatement();
-    statement.setQueryTimeout(30);
-    ResultSet rs = statement.executeQuery("select id from users where login = '" + login + "'"); // TODO escape login
-    while(rs.next())
-    {
-      return rs.getInt("id");
+    try{
+      Statement statement = getConnection().createStatement();
+      statement.setQueryTimeout(30);
+      ResultSet rs = statement.executeQuery("select id from users where login = '" + login + "'"); // TODO escape login
+      while(rs.next())
+      {
+        return rs.getInt("id");
+      }
+      return -1;
+    } catch (SQLException ex) {
+      return -1;
     }
-    return -1;
   }
 
   public boolean login(String login, String password)
   {
-    try {
       int userId = getUserId(login);
       if(userId == -1)
         return false;
@@ -208,11 +216,7 @@ public class Manager
 
       m_currentUser = user;
       return true;
-    }
-    catch(SQLException e) {
-      e.printStackTrace();
-      return false;
-    }
+    
   }
 
   static String readFile(String path, Charset encoding) throws IOException

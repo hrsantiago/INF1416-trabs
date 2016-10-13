@@ -107,8 +107,8 @@ INSERT INTO messages VALUES(9002, 'Botão sair pressionado por <login_name>.');
 INSERT INTO messages VALUES(9003, 'Botão voltar de sair para o menu principal pressionado por <login_name>.');
 
 -- Tests
-INSERT INTO users VALUES(1, 'Fulano', 'fulano', 1, 'dd7dfaffa6a31a0ee0e3e5c805f6342d', '123456789', 'cert', null, null, 0, 0); -- Pass 123456
-INSERT INTO users VALUES(2, 'Cicrano', 'cicrano', 1, 'dd7dfaffa6a31a0ee0e3e5c805f6342d', '123456789', 'cert', null, null, 0, 0); -- Pass 123456
+INSERT INTO users VALUES(1, 'Fulano', 'fulano', 1, '4f900d95a27390faec3179c76fec21e2', '123456789', 'cert', null, null, 0, 0); -- Pass CAFEBE
+INSERT INTO users VALUES(2, 'Cicrano', 'cicrano', 1, '8872d019ddea79565e18298d77e1a065', '123456789', 'cert', null, null, 0, 0); -- Pass BAGEGA
 
 INSERT INTO registries (id, message_id) VALUES(1, 1001);
 INSERT INTO registries (id, message_id, user_id, filename) VALUES(2, 8011, 1, 'arquivox');
