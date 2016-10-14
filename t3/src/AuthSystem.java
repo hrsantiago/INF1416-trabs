@@ -1,5 +1,4 @@
 import core.Manager;
-import core.User;
 import view.Window;
 
 public class AuthSystem

@@ -1,9 +1,12 @@
 package core;
 
 import java.security.*;
+import java.util.*;
+import java.sql.*;
 
 public class User
 {
+	private int m_id;
 	private String m_name;
 	private String m_login;
 	private Group m_group;
@@ -18,6 +21,14 @@ public class User
 	private int m_passwordErrors = 0;
 	private long m_blockEnd = 0;
 
+	private ArrayList<TanValue> m_tanList = new ArrayList<TanValue>();
+
+	public class TanValue {
+		public int index;
+		public String password;
+	}
+
+	public void setId(int id) { m_id = id; }
 	public void setName(String name) { m_name = name; }
 	public void setLogin(String login) { m_login = login; }
 	public void setGroup(Group group) { m_group = group; }
@@ -29,6 +40,7 @@ public class User
 	public void setNumAccesses(int accesses) { m_numAccesses = accesses; }
 	public void setNumQueries(int queries) { m_numQueries = queries; }
 
+	public int getId() { return m_id; }
 	public String getName() { return m_name; }
 	public String getLogin() { return m_login; }
 	public Group getGroup() { return m_group; }
@@ -49,13 +61,10 @@ public class User
 		return buf.toString();
 	}
 
-	public void addPasswordError() {
+	public void addPasswordError(int maxError) {
 		m_passwordErrors++;
-		System.out.println(m_passwordErrors);
-		if(m_passwordErrors >= 3) {
-			System.out.println("block");
+		if(m_passwordErrors >= maxError)
 			block(5 * 1000); // TODO: 2 min
-		}
 	}
 
 	public int getPasswordError() {
@@ -65,11 +74,9 @@ public class User
 	public void block(long duration) {
 		m_passwordErrors = 0;
 		m_blockEnd = System.currentTimeMillis() + duration;
-		System.out.println(m_blockEnd);
 	}
 
 	public boolean isBlocked() {
-		System.out.println(m_blockEnd);
 		return m_blockEnd != 0 && m_blockEnd >= System.currentTimeMillis();
 	}
 
@@ -83,6 +90,61 @@ public class User
 		}
 		catch(Exception e) {
 			return false;
+		}
+	}
+
+	public TanValue getTanValue() {
+		try {
+			if(m_tanList.isEmpty()) {
+				if(!loadTanList())
+					createTanList();
+			}
+
+			SecureRandom rnd = new SecureRandom();
+			return m_tanList.get(rnd.nextInt(m_tanList.size()));
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private boolean loadTanList() throws SQLException {
+		boolean ret = false;
+		Manager manager = Manager.getInstance();
+		Statement statement = manager.getConnection().createStatement();
+		statement.setQueryTimeout(30);
+		ResultSet rs = statement.executeQuery("SELECT * FROM tanlist WHERE used = 0 AND user_id = " + m_id);
+		while(rs.next()) {
+			TanValue tanValue = new TanValue();
+			tanValue.index = rs.getInt("id");
+			tanValue.password = rs.getString("passoword");
+			m_tanList.add(tanValue);
+			ret = true;
+		}
+		return ret;
+	}
+
+	private void createTanList() throws SQLException {
+		Manager manager = Manager.getInstance();
+		Statement statement = manager.getConnection().createStatement();
+		statement.setQueryTimeout(30);
+		statement.executeUpdate("DELETE FROM tanlist WHERE user_id = " + m_id);
+
+		SecureRandom rnd = new SecureRandom();
+		String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+		for(int i = 0; i < 10; i++) {
+			TanValue tanValue = new TanValue();
+			tanValue.index = i+1;
+			tanValue.password = "";
+			for(int j = 0; j < 4; j++)
+				tanValue.password += chars.charAt(rnd.nextInt(chars.length()));
+
+			System.out.println(tanValue.index + " " + tanValue.password);
+
+			m_tanList.add(tanValue);
+			statement.executeUpdate("INSERT INTO tanlist(id,user_id,password) VALUES("+tanValue.index+","+m_id+",'"+tanValue.password+"')");
 		}
 	}
 }

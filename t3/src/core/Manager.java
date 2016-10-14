@@ -78,7 +78,7 @@ public class Manager
 	{
 		Statement statement = getConnection().createStatement();
 		statement.setQueryTimeout(30);
-		ResultSet rs = statement.executeQuery("select * from groups");
+		ResultSet rs = statement.executeQuery("SELECT * FROM groups");
 		while(rs.next()) {
 			int id = rs.getInt("id");
 			String name = rs.getString("name");
@@ -92,7 +92,7 @@ public class Manager
 	{
 		Statement statement = getConnection().createStatement();
 		statement.setQueryTimeout(30);
-		ResultSet rs = statement.executeQuery("select * from messages");
+		ResultSet rs = statement.executeQuery("SELECT * FROM messages");
 		while(rs.next()) {
 			int code = rs.getInt("id");
 			String text = rs.getString("text");
@@ -105,7 +105,7 @@ public class Manager
 	{
 		Statement statement = getConnection().createStatement();
 		statement.setQueryTimeout(30);
-		statement.executeUpdate("insert into registries(message_id,user_id,filename) values("+messageId+","+userId+",'"+filename+"')");
+		statement.executeUpdate("INSERT INTO registries(message_id,user_id,filename) VALUES("+messageId+","+userId+",'"+filename+"')");
 		// TODO escape filename
 	}
 
@@ -123,7 +123,7 @@ public class Manager
 	{
 		Statement statement = getConnection().createStatement();
 		statement.setQueryTimeout(30);
-		ResultSet rs = statement.executeQuery("select * from registries");
+		ResultSet rs = statement.executeQuery("SELECT * FROM registries");
 		while(rs.next()) {
 			int code = rs.getInt("id");
 			int messageId = rs.getInt("message_id");
@@ -147,7 +147,7 @@ public class Manager
 	{
 		Statement statement = getConnection().createStatement();
 		statement.setQueryTimeout(30);
-		ResultSet rs = statement.executeQuery("select * from users where id = " + id);
+		ResultSet rs = statement.executeQuery("SELECT * FROM users WHERE id = " + id);
 		while(rs.next()) {
 			String name = rs.getString("name");
 			String login = rs.getString("login");
@@ -161,6 +161,7 @@ public class Manager
 			int queries = rs.getInt("num_queries");
 
 			User user = new User();
+			user.setId(id);
 			user.setName(name);
 			user.setLogin(login);
 			user.setGroup(m_groups.get(groupId));
@@ -196,7 +197,7 @@ public class Manager
 		try {
 			Statement statement = getConnection().createStatement();
 			statement.setQueryTimeout(30);
-			ResultSet rs = statement.executeQuery("select id from users where login = '" + login + "'"); // TODO escape login
+			ResultSet rs = statement.executeQuery("SELECT id FROM users WHERE login = '" + login + "'"); // TODO escape login
 			while(rs.next()) {
 				return rs.getInt("id");
 			}

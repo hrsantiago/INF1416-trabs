@@ -64,28 +64,28 @@ public class Window extends JFrame implements DigitalKeyboardListener {
 		JButton loginButton = new JButton("Login");
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					String login = loginField.getText();
+				String login = loginField.getText();
 
-					Manager manager = Manager.getInstance();
-					int userId = manager.getUserId(login);
-					if(userId != -1) {
-						currentUser = manager.getUser(userId);
+				Manager manager = Manager.getInstance();
+				int userId = manager.getUserId(login);
+				if(userId != -1) {
+					currentUser = manager.getUser(userId);
 
-						if(currentUser.isBlocked()) {
-							JOptionPane.showMessageDialog(null, "User access is blocked.");
-							currentUser = null;
-							return;
-						}
-
-						JOptionPane.showMessageDialog(null, "Login OK.");
-						destroyLoginPanel();
-						
-						createDigitalKeyboard();
-						setVisible(false);
+					if(currentUser.isBlocked()) {
+						JOptionPane.showMessageDialog(null, "User access is blocked.");
+						currentUser = null;
+						return;
 					}
-					else
-						JOptionPane.showMessageDialog(null, "Login or password invalid.");
+
+					JOptionPane.showMessageDialog(null, "Login OK.");
+					destroyLoginPanel();
+					
+					createDigitalKeyboard();
+					setVisible(false);
 				}
+				else
+					JOptionPane.showMessageDialog(null, "Login or password invalid.");
+			}
 		});
 		p.add(loginButton);
 		getRootPane().setDefaultButton(loginButton);
@@ -110,11 +110,12 @@ public class Window extends JFrame implements DigitalKeyboardListener {
 	}
 
 	private void createTanListPanel() {
+		User.TanValue tanValue = currentUser.getTanValue();
+
 		JPanel p = new JPanel();
-		p.setVisible(false);
 		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
 
-		p.add(new JLabel("Login:"));
+		p.add(new JLabel("One time password #" + tanValue.index));
 
 		JTextField passwordField = new JTextField();
 		p.add(passwordField);
@@ -122,10 +123,28 @@ public class Window extends JFrame implements DigitalKeyboardListener {
 		JButton loginButton = new JButton("Login");
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					String login = passwordField.getText();
+				String password = passwordField.getText();
+				if(password.equals(tanValue.password)) {
+					JOptionPane.showMessageDialog(null, "Senha correta!");
+					destroyTanListPanel();
+					// TODO create next panel
+				} else {
+					int maxError = 3;
+					currentUser.addPasswordError(maxError);
+					if(currentUser.isBlocked()) {
+						currentUser = null;
+						JOptionPane.showMessageDialog(null, "User blocked!");
+						destroyTanListPanel();
+						createLoginPanel();
+					} else {
+						JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + String.valueOf(maxError-currentUser.getPasswordError()));
+						passwordField.setText("");
+					}
 				}
+			}
 		});
 		p.add(loginButton);
+		getRootPane().setDefaultButton(loginButton);
 
 		add(p);
 		m_tanListPanel = p;
@@ -146,6 +165,7 @@ public class Window extends JFrame implements DigitalKeyboardListener {
 		}
 
 		destroyDigitalKeyboard();
+		passOk = true; // TODO hack
 
 		if(passOk) {
 			createTanListPanel();
@@ -153,14 +173,15 @@ public class Window extends JFrame implements DigitalKeyboardListener {
 			System.out.println("Senha correta!");
 			JOptionPane.showMessageDialog(null, "Senha correta!");
 		} else {
-			currentUser.addPasswordError();
+			int maxError = 3;
+			currentUser.addPasswordError(maxError);
 			if(currentUser.isBlocked()) {
 				currentUser = null;
 				JOptionPane.showMessageDialog(null, "User blocked!");
 				createLoginPanel();
 				setVisible(true);
 			} else {
-				JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + String.valueOf(3-currentUser.getPasswordError()));
+				JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + String.valueOf(maxError-currentUser.getPasswordError()));
 				createDigitalKeyboard();
 			}
 		}
