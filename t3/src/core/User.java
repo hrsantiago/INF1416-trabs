@@ -4,7 +4,6 @@ import java.security.*;
 
 public class User
 {
-
 	private String m_name;
 	private String m_login;
 	private Group m_group;
@@ -15,6 +14,9 @@ public class User
 	private String m_directory;
 	private int m_numAccesses;
 	private int m_numQueries;
+
+	private int m_passwordErrors = 0;
+	private long m_blockEnd = 0;
 
 	public void setName(String name) { m_name = name; }
 	public void setLogin(String login) { m_login = login; }
@@ -47,8 +49,31 @@ public class User
 		return buf.toString();
 	}
 
-	public boolean isPasswordValid(String plainPassword)
-	{
+	public void addPasswordError() {
+		m_passwordErrors++;
+		System.out.println(m_passwordErrors);
+		if(m_passwordErrors >= 3) {
+			System.out.println("block");
+			block(5 * 1000); // TODO: 2 min
+		}
+	}
+
+	public int getPasswordError() {
+		return m_passwordErrors;
+	}
+
+	public void block(long duration) {
+		m_passwordErrors = 0;
+		m_blockEnd = System.currentTimeMillis() + duration;
+		System.out.println(m_blockEnd);
+	}
+
+	public boolean isBlocked() {
+		System.out.println(m_blockEnd);
+		return m_blockEnd != 0 && m_blockEnd >= System.currentTimeMillis();
+	}
+
+	public boolean isPasswordValid(String plainPassword) {
 		try {
 			byte[] data = (plainPassword + m_salt).getBytes("UTF8");
 			MessageDigest messageDigest = MessageDigest.getInstance("MD5");

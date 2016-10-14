@@ -10,22 +10,16 @@ public class AuthSystem
 		if(!manager.initialize())
 			return;
 
-		Window window = new Window();
-		window.setTitle("Auth System");
-		window.setVisible(true);
-
 		try {
-			//manager.loadSchema();
-			manager.addRegistry(1001,-1,"");
+			manager.loadSchema();
+			manager.addRegistry(1001);
 			manager.loadGroups();
 
-			// test password
-			User user = manager.getUser(1);
-			System.out.println(user.isPasswordValid("BAGEGA"));
+			Window window = new Window();
+			window.setTitle("Auth System");
+			window.setVisible(true);
 
-			// do stuff
-
-			manager.addRegistry(1002,-1,"");
+			manager.addRegistry(1002);
 		}
 		catch(Exception e) {
 			e.printStackTrace();

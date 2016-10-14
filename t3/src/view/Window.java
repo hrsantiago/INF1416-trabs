@@ -1,6 +1,7 @@
 package view;
 
 import core.Manager;
+import view.DigitalKeyboard;
 
 import java.awt.Dimension;
 import java.awt.Event;
@@ -27,21 +28,14 @@ public class Window extends JFrame implements DigitalKeyboardListener {
 
 	private static final long serialVersionUID = -3739008754324139578L;
 
-	private int passwordErrors;
-	private DigitalKeyboard dk;
 	private User currentUser;
 
-	private Map<String, Long> blockedUsers;
-
 	private JPanel m_loginPanel;
+	private DigitalKeyboard m_digitalKeyboard;
+	private JPanel m_tanListPanel;
 
 	public Window() {
-		createLoginPanel();
 		setupWindow();
-
-		blockedUsers = new HashMap<String, Long>();
-		passwordErrors = 0;
-		m_loginPanel.setVisible(true);
 	}
 
 	private void setupWindow() {
@@ -54,16 +48,17 @@ public class Window extends JFrame implements DigitalKeyboardListener {
 		int x = (int) ((dimension.getWidth() - getWidth()) / 2);
 		int y = (int) ((dimension.getHeight() - getHeight()) / 2);
 		setLocation(x, y);
+
+		createLoginPanel();
 	}
 
 	private void createLoginPanel() {
 		JPanel p = new JPanel();
-		p.setVisible(false);
 		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
 
 		p.add(new JLabel("Login:"));
 
-		JTextField loginField = new JTextField();
+		JTextField loginField = new JTextField("fulano"); // TODO remove this
 		p.add(loginField);
 
 		JButton loginButton = new JButton("Login");
@@ -71,26 +66,21 @@ public class Window extends JFrame implements DigitalKeyboardListener {
 			public void actionPerformed(ActionEvent e) {
 					String login = loginField.getText();
 
-					if(blockedUsers.containsKey(login)){
-						long timeLocked = blockedUsers.get(login);
-						if(System.currentTimeMillis() - timeLocked > 2 * 60 * 1000){
-							blockedUsers.remove(login);
-						} else {
-							JOptionPane.showMessageDialog(null, "Usuário bloqueado.");
-							return;
-						}
-					}
-
 					Manager manager = Manager.getInstance();
 					int userId = manager.getUserId(login);
 					if(userId != -1) {
 						currentUser = manager.getUser(userId);
 
+						if(currentUser.isBlocked()) {
+							JOptionPane.showMessageDialog(null, "User access is blocked.");
+							currentUser = null;
+							return;
+						}
+
 						JOptionPane.showMessageDialog(null, "Login OK.");
-						m_loginPanel.setVisible(false);
+						destroyLoginPanel();
 						
-						dk = new DigitalKeyboard(Window.this);
-						dk.show();
+						createDigitalKeyboard();
 						setVisible(false);
 					}
 					else
@@ -98,41 +88,80 @@ public class Window extends JFrame implements DigitalKeyboardListener {
 				}
 		});
 		p.add(loginButton);
+		getRootPane().setDefaultButton(loginButton);
 
 		add(p);
 		m_loginPanel = p;
 	}
 
-	private void blockUser() {
-		if(currentUser != null)
-			blockedUsers.put(currentUser.getLogin(), System.currentTimeMillis());
+	private void destroyLoginPanel() {
+		remove(m_loginPanel);
+		m_loginPanel = null;
+	}
+
+	private void createDigitalKeyboard() {
+		m_digitalKeyboard = new DigitalKeyboard(Window.this);
+		m_digitalKeyboard.show();
+	}
+
+	private void destroyDigitalKeyboard() {
+		m_digitalKeyboard.dismiss();
+		m_digitalKeyboard = null;
+	}
+
+	private void createTanListPanel() {
+		JPanel p = new JPanel();
+		p.setVisible(false);
+		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+
+		p.add(new JLabel("Login:"));
+
+		JTextField passwordField = new JTextField();
+		p.add(passwordField);
+
+		JButton loginButton = new JButton("Login");
+		loginButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+					String login = passwordField.getText();
+				}
+		});
+		p.add(loginButton);
+
+		add(p);
+		m_tanListPanel = p;
+	}
+
+	private void destroyTanListPanel() {
+		remove(m_tanListPanel);
+		m_tanListPanel = null;
 	}
 
 	public void onCombinationsPrepared(List<String> combinations) {
 		boolean passOk = false;
-		for (String s : combinations){
-			if(currentUser.isPasswordValid(s)){
+		for (String s : combinations) {
+			if(currentUser.isPasswordValid(s)) {
 				passOk = true;
 				break;
 			}
 		}
-		if(passOk){
-			dk.dismiss();
-			System.out.println("Senha correta!");
-			JOptionPane.showMessageDialog(null, "Senha correta!.");
+
+		destroyDigitalKeyboard();
+
+		if(passOk) {
+			createTanListPanel();
 			setVisible(true);
+			System.out.println("Senha correta!");
+			JOptionPane.showMessageDialog(null, "Senha correta!");
 		} else {
-			dk.dismiss();
-			passwordErrors++;
-			if(passwordErrors >= 3){
-				blockUser();
+			currentUser.addPasswordError();
+			if(currentUser.isBlocked()) {
 				currentUser = null;
+				JOptionPane.showMessageDialog(null, "User blocked!");
+				createLoginPanel();
 				setVisible(true);
-				m_loginPanel.setVisible(true);
 			} else {
-				JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + String.valueOf(3-passwordErrors));
-				dk = new DigitalKeyboard(Window.this);
-				dk.show();
+				JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + String.valueOf(3-currentUser.getPasswordError()));
+				createDigitalKeyboard();
 			}
 		}
 	}

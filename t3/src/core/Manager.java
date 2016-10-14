@@ -79,8 +79,7 @@ public class Manager
 		Statement statement = getConnection().createStatement();
 		statement.setQueryTimeout(30);
 		ResultSet rs = statement.executeQuery("select * from groups");
-		while(rs.next())
-		{
+		while(rs.next()) {
 			int id = rs.getInt("id");
 			String name = rs.getString("name");
 			Group group = new Group();
@@ -94,8 +93,7 @@ public class Manager
 		Statement statement = getConnection().createStatement();
 		statement.setQueryTimeout(30);
 		ResultSet rs = statement.executeQuery("select * from messages");
-		while(rs.next())
-		{
+		while(rs.next()) {
 			int code = rs.getInt("id");
 			String text = rs.getString("text");
 			Message message = new Message(code, text);
@@ -111,13 +109,22 @@ public class Manager
 		// TODO escape filename
 	}
 
+	public void addRegistry(int messageId) throws SQLException
+	{
+		addRegistry(messageId, -1, null);
+	}
+
+	public void addRegistry(int messageId, int userId) throws SQLException
+	{
+		addRegistry(messageId, userId, null);
+	}
+
 	public void loadRegistries() throws SQLException
 	{
 		Statement statement = getConnection().createStatement();
 		statement.setQueryTimeout(30);
 		ResultSet rs = statement.executeQuery("select * from registries");
-		while(rs.next())
-		{
+		while(rs.next()) {
 			int code = rs.getInt("id");
 			int messageId = rs.getInt("message_id");
 			int userId = rs.getInt("user_id");
@@ -141,8 +148,7 @@ public class Manager
 		Statement statement = getConnection().createStatement();
 		statement.setQueryTimeout(30);
 		ResultSet rs = statement.executeQuery("select * from users where id = " + id);
-		while(rs.next())
-		{
+		while(rs.next()) {
 			String name = rs.getString("name");
 			String login = rs.getString("login");
 			int groupId = rs.getInt("group_id");
@@ -191,31 +197,13 @@ public class Manager
 			Statement statement = getConnection().createStatement();
 			statement.setQueryTimeout(30);
 			ResultSet rs = statement.executeQuery("select id from users where login = '" + login + "'"); // TODO escape login
-			while(rs.next())
-			{
+			while(rs.next()) {
 				return rs.getInt("id");
 			}
 			return -1;
 		} catch (SQLException ex) {
 			return -1;
 		}
-	}
-
-	public boolean login(String login, String password)
-	{
-		int userId = getUserId(login);
-		if(userId == -1)
-			return false;
-
-		User user = getUser(userId);
-		if(user == null)
-			return false;
-
-		if(!user.isPasswordValid(password))
-			return false;
-
-		m_currentUser = user;
-		return true;	
 	}
 
 	static String readFile(String path, Charset encoding) throws IOException

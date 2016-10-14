@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.util.*;
 import java.awt.FlowLayout;
 import java.awt.event.*;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 
 public class DigitalKeyboard {
 
@@ -20,13 +22,13 @@ public class DigitalKeyboard {
 	public DigitalKeyboard (DigitalKeyboardListener dkl){
 		//Inicializa e embaralha a lista de fonemas
 		fonemas = Arrays.asList(
-				"BA", "BE", "BO",
-				"CA", "CE", "CO",
-				"DA", "DE", "DO",
-				"FA", "FE", "FO",
-				"GA", "GE", "GO"
-			);
-		
+			"BA", "BE", "BO",
+			"CA", "CE", "CO",
+			"DA", "DE", "DO",
+			"FA", "FE", "FO",
+			"GA", "GE", "GO"
+		);
+
 		this.dkl = dkl;
 	}
 
@@ -44,6 +46,11 @@ public class DigitalKeyboard {
 		frame.setResizable(false);
 		frame.setSize(300, 150);
 		frame.setVisible(true);
+
+		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+		int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
+		int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
+		frame.setLocation(x, y);
 	}
 
 	public void dismiss() {
