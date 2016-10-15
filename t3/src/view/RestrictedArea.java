@@ -13,7 +13,12 @@ import core.*;
 
 public class RestrictedArea implements PanelCloseListener {
 
+	public enum State {
+	    MAIN, REGISTER, UPLOAD_KEY, SECRET_FILES, EXIT
+	}
+	
 	private JFrame frame;
+	private JLabel m_headerLabel;
 	private User m_currentUser;
 	private Manager m_manager; //para fazer log
 	private RestrictedAreaExitListener m_exitListener;
@@ -53,11 +58,15 @@ public class RestrictedArea implements PanelCloseListener {
 		});
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(500, 575);
+		frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.PAGE_AXIS));
 		
 		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 		int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
 		int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
 		frame.setLocation(x, y);
+		
+		m_headerLabel = new JLabel();
+		frame.add(m_headerLabel);
 	}
 	
 	public void show() {
@@ -113,9 +122,9 @@ public class RestrictedArea implements PanelCloseListener {
 		mainMenu.add(consultarItem);
 		mainMenu.addSeparator();
 		mainMenu.add(sairItem);
-		
 		menu.add(mainMenu);
 		
+		updateHeaderLabel(State.MAIN);
 		frame.setJMenuBar(menu);
 		frame.setVisible(true);
 		
@@ -151,16 +160,39 @@ public class RestrictedArea implements PanelCloseListener {
 	
 	
 	private void showNewUserPanel() {
+		updateHeaderLabel(State.REGISTER);
 		m_newUserPanel = new NewUserPanel(m_currentUser, this);
 		frame.add(m_newUserPanel);
 	}
 	
 	private void showUploadKeyPanel() {
+		updateHeaderLabel(State.UPLOAD_KEY);
 		//TODO: implementar panel de upload de chave privada
 	}
 	
 	private void showSecretFilesPanel() {
+		updateHeaderLabel(State.SECRET_FILES);
 		//TODO: implementar panel de arquivos secretos
+	}
+	
+	// TODO showExitPanel
+	
+	private void updateHeaderLabel(State state) {
+		String header = "<html>";
+		header += "Login: " + m_currentUser.getLogin() + "<br>";
+		header += "Grupo: " + m_currentUser.getGroup().getName() + "<br>";
+		//header += "Descricao: " + m_currentUser.getDescription() + "<br>"; TODO: ??
+		header += "<br>";
+		if(state == State.MAIN || state == State.EXIT)
+			header += "Total de acessos do usuario: " + m_currentUser.getNumAccesses();
+		else if(state == State.REGISTER)
+			header += "Total de usuarios do sistema: " + "?"; // TODO
+		else if(state == State.UPLOAD_KEY)
+			header += "Total de listagem do usuario: " + "?"; // TODO
+		else if(state == State.SECRET_FILES)
+			header += "Total de consultas do usuario: " + m_currentUser.getNumQueries();
+		header += "</html>";
+		m_headerLabel.setText(header);
 	}
 
 }

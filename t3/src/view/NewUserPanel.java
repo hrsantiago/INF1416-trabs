@@ -26,7 +26,6 @@ public class NewUserPanel extends JPanel {
 	private JComboBox<Group> m_groupCombo;
 	private JPasswordField m_passwordField;
 	private JPasswordField m_confirmPassField;
-	private JButton fileChooseButton;
 	
 	private PanelCloseListener m_pcl;
 	
@@ -73,7 +72,7 @@ public class NewUserPanel extends JPanel {
 		add(m_confirmPassField);
 		
 		add(new JLabel("Chave privada:"));
-		fileChooseButton = new JButton("Selecionar arquivo");
+		JButton fileChooseButton = new JButton("Selecionar arquivo");
 		fileChooseButton.addActionListener(new ActionListener() {
 			
 			@Override

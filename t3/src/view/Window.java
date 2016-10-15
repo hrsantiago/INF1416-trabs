@@ -122,6 +122,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 
 					m_currentUser.useTanValue(tanValue);
 					m_currentUser.resetPasswordErrors();
+					m_currentUser.setNumAccesses(m_currentUser.getNumAccesses() + 1);
 					RestrictedArea restrict = new RestrictedArea(m_currentUser, Window.this);
 					restrict.show();
 				} else {
