@@ -3,6 +3,8 @@ package view;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.sql.SQLException;
+import java.util.Map;
 
 import javax.swing.*;
 
@@ -21,7 +23,7 @@ public class NewUserPanel extends JPanel {
 	
 	private JTextField m_nameField;
 	private JTextField m_loginField;
-	private JComboBox<String> m_groupCombo;
+	private JComboBox<Group> m_groupCombo;
 	private JPasswordField m_passwordField;
 	private JPasswordField m_confirmPassField;
 	private JButton fileChooseButton;
@@ -53,8 +55,13 @@ public class NewUserPanel extends JPanel {
 		add(m_loginField);
 		
 		add(new JLabel("Grupo:"));
-		String[] groups = {Group.USER, Group.ADMIN};
-		m_groupCombo = new JComboBox<String>(groups);
+		m_groupCombo = new JComboBox<Group>();
+		
+		Map<Integer,Group> groups = m_manager.getGroups();
+		for(Map.Entry<Integer, Group> entry : groups.entrySet()) {
+		    Group value = entry.getValue();
+		    m_groupCombo.addItem(value);
+		}
 		add(m_groupCombo);
 		
 		add(new JLabel("Senha (BA BE BO CA CE CO DA DE DO FA FE FO GA GE GO):"));
@@ -95,17 +102,23 @@ public class NewUserPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				m_manager.addRegistry(6002, m_currentUser.getId());
 
-				if(validateFormNewUser()){
-					User newUser = new User(
+				if(validateFormNewUser()) {
+					User newUser = m_manager.createNewUser(
 						m_nameField.getText(), 
 						m_loginField.getText(), 
-						(String) m_groupCombo.getSelectedItem(), 
+						(Group)m_groupCombo.getSelectedItem(), 
 						new String(m_passwordField.getPassword()),
 						m_keyPath
 					);
 					
-					if(m_manager.createNewUser(newUser)){
-						//TODO: create tanList.txt
+					if(newUser != null) {
+						//TODO: create tanList.txt WHERE?
+						try {
+							newUser.createTanList();
+							newUser.saveTanList("/home/henrique/"); // pode me xingar
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
 						
 						JOptionPane.showMessageDialog(null, "Usuario cadastrado");
 					} else {

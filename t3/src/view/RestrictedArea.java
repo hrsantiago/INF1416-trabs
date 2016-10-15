@@ -108,7 +108,7 @@ public class RestrictedArea implements PanelCloseListener {
 		//Apenas mostra esse item do menu para admins
 		if(m_currentUser.getGroup().getName().equals(Group.ADMIN))
 			mainMenu.add(cadastroItem);
-		
+
 		mainMenu.add(privadaItem);
 		mainMenu.add(consultarItem);
 		mainMenu.addSeparator();

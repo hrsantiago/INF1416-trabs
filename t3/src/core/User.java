@@ -1,5 +1,6 @@
 package core;
 
+import java.io.PrintWriter;
 import java.security.*;
 import java.util.*;
 import java.sql.*;
@@ -38,14 +39,12 @@ public class User
 	}
 	
 	public User(){}
-	public User(String name, String login, String groupName, String plainPassword, String keyPath) {
+	public User(String name, String login, Group group, String plainPassword, String keyPath) {
 		m_name = name;
 		m_login = login;
-		m_group = new Group(groupName);
-		
+		m_group = group;
 		m_salt = generateSalt();
 		m_password = encodePassword(plainPassword);
-		
 		m_privateKey = keyPath;
 	}
 
@@ -167,6 +166,23 @@ public class User
 		}
 		return null;
 	}
+	
+	public boolean useTanValue(TanValue tanValue) {
+		Manager manager = Manager.getInstance();
+		
+		try {
+			Statement statement = manager.getConnection().createStatement();
+			statement.setQueryTimeout(30);
+			int ret = statement.executeUpdate("UPDATE tanlist SET used = 1 WHERE user_id = " + m_id + " AND id = " + tanValue.index);
+			if(ret == 1) {
+				m_tanList.remove(tanValue);
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 
 	private boolean loadTanList() throws SQLException {
 		boolean ret = false;
@@ -177,14 +193,14 @@ public class User
 		while(rs.next()) {
 			TanValue tanValue = new TanValue();
 			tanValue.index = rs.getInt("id");
-			tanValue.password = rs.getString("passoword");
+			tanValue.password = rs.getString("password");
 			m_tanList.add(tanValue);
 			ret = true;
 		}
 		return ret;
 	}
 
-	private void createTanList() throws SQLException {
+	public void createTanList() throws SQLException {
 		Manager manager = Manager.getInstance();
 		Statement statement = manager.getConnection().createStatement();
 		statement.setQueryTimeout(30);
@@ -203,7 +219,23 @@ public class User
 			System.out.println(tanValue.index + " " + tanValue.password);
 
 			m_tanList.add(tanValue);
-			statement.executeUpdate("INSERT INTO tanlist(id,user_id,password) VALUES("+tanValue.index+","+m_id+",'"+tanValue.password+"')");
+			statement.addBatch("INSERT INTO tanlist(id,user_id,password) VALUES("+tanValue.index+","+m_id+",'"+tanValue.password+"')");
+		}
+		statement.executeBatch();
+	}
+	
+	public void saveTanList(String path) {
+		String filename = m_login + "-tan.txt";
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(path + "/" + filename, "US-ASCII");
+			for(int i = 0; i < m_tanList.size(); i++) {
+				TanValue tanValue = m_tanList.get(i);
+				writer.printf("%d %s\n", i, tanValue.password);
+			}
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

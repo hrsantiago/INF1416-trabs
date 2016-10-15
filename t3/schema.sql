@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS tanlist;
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL, -- 50
-  login TEXT NOT NULL, -- 20
+  login TEXT UNIQUE NOT NULL, -- 20
   group_id TEXT NOT NULL,
   password TEXT NOT NULL,
   salt TEXT NOT NULL, -- 9

@@ -67,8 +67,6 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 						m_currentUser = null;
 						return;
 					}
-
-					JOptionPane.showMessageDialog(null, "Login OK.");
 					destroyLoginPanel();
 					
 					createDigitalKeyboard();
@@ -111,7 +109,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 
 		p.add(new JLabel("One time password #" + tanValue.index));
 
-		JTextField passwordField = new JTextField();
+		JTextField passwordField = new JTextField(tanValue.password); // TODO: remove this
 		p.add(passwordField);
 
 		JButton loginButton = new JButton("Login");
@@ -119,10 +117,10 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 			public void actionPerformed(ActionEvent e) {
 				String password = passwordField.getText();
 				if(password.equals(tanValue.password)) {
-					JOptionPane.showMessageDialog(null, "Senha correta!");
 					destroyTanListPanel();
 					setVisible(false);
-					
+
+					m_currentUser.useTanValue(tanValue);
 					m_currentUser.resetPasswordErrors();
 					RestrictedArea restrict = new RestrictedArea(m_currentUser, Window.this);
 					restrict.show();
@@ -167,12 +165,13 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 		}
 		destroyDigitalKeyboard();
 
+		passOk = true; // TODO: remove this
+
 		if(passOk) {
 			createTanListPanel();
 			setVisible(true);
 			System.out.println("Senha correta!");
 			m_currentUser.resetPasswordErrors();
-			JOptionPane.showMessageDialog(null, "Senha correta!");
 		} else {
 			m_currentUser.addPasswordError();
 			if(m_currentUser.isBlocked()) {

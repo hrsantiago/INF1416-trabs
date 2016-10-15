@@ -83,10 +83,15 @@ public class Manager
 			int id = rs.getInt("id");
 			String name = rs.getString("name");
 			Group group = new Group();
+			group.setId(id);
 			group.setName(name);
 			m_groups.put(id, group);
 		}
-	}  
+	}
+	
+	public Map<Integer,Group> getGroups() {
+		return m_groups;
+	}
 
 	public void loadMessages() throws SQLException
 	{
@@ -217,8 +222,10 @@ public class Manager
 		return new String(encoded, encoding);
 	}
 	
-	public boolean createNewUser(User user){
+	public User createNewUser(String name, String login, Group group, String plainPassword, String keyPath){
 		try {
+			User user = new User(name, login, group, plainPassword, keyPath);
+
 			String insertQuery = "INSERT INTO users(name, login, group_id, password, salt,"
 					+ "certificate, private_key, directory) VALUES ("
 					+ "'" + user.getName() + "',"
@@ -233,12 +240,14 @@ public class Manager
 			System.out.println("Insert query: " + insertQuery);
 			Statement statement = getConnection().createStatement();
 			statement.setQueryTimeout(30);
-			statement.executeUpdate(insertQuery);
-			
-			return true;
+			int ret = statement.executeUpdate(insertQuery);
+			if(ret == 1) {
+				int userId = getUserId(login);
+				return getUser(userId);
+			}
 		} catch(SQLException ex) {
 			ex.printStackTrace();
-			return false;
 		}
+		return null;
 	}
 }
