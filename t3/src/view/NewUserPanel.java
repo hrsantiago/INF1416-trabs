@@ -146,6 +146,9 @@ public class NewUserPanel extends JPanel {
 		} else if (m_loginField.getText().length() > 50){
 			showErrorMessage("Login muito longo.");
 			return false;
+		} else if (!User.checkPasswordIntegrity(pass)) {
+			showErrorMessage("Senha invalida, use somente os fonemas aceitos e sem repeti-los.");
+			return false;
 		} else if (!pass.equals(conf)){
 			showErrorMessage("Senhas nao batem.");
 			return false;

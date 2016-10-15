@@ -7,6 +7,8 @@ import java.awt.event.*;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
+import core.User;
+
 public class DigitalKeyboard {
 
 	private JFrame frame;
@@ -20,13 +22,7 @@ public class DigitalKeyboard {
 
 	public DigitalKeyboard (DigitalKeyboardListener dkl){
 		//Inicializa e embaralha a lista de fonemas
-		fonemas = Arrays.asList(
-			"BA", "BE", "BO",
-			"CA", "CE", "CO",
-			"DA", "DE", "DO",
-			"FA", "FE", "FO",
-			"GA", "GE", "GO"
-		);
+		fonemas = Arrays.asList(User.FONEMAS);
 
 		this.dkl = dkl;
 	}

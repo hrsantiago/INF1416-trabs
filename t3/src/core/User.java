@@ -7,6 +7,13 @@ import java.sql.*;
 public class User
 {
 	public static final int MAX_ERRORS = 3;
+	public static final String[] FONEMAS = {
+			"BA", "BE", "BO",
+			"CA", "CE", "CO",
+			"DA", "DE", "DO",
+			"FA", "FE", "FO",
+			"GA", "GE", "GO"
+		};
 	
 	private int m_id;
 	private String m_name;
@@ -121,6 +128,26 @@ public class User
 		}
 	}
 
+	public static boolean checkPasswordIntegrity(String password) {
+		List<String> fonemas = Arrays.asList(FONEMAS);
+		HashMap<String, Boolean> fonemaMap = new HashMap<String, Boolean>();
+		
+		if (password.length() != 6) return false;
+		
+		for(int i = 0; i < 3; i++){
+			String fon = password.substring(2*i, 2*i + 2);
+			if (fonemaMap.containsKey(fon))
+				return false;
+			
+			if(fonemas.indexOf(fon) == -1)
+				return false;
+			
+			fonemaMap.put(fon, true);
+		}
+		
+		return true;
+	}
+	
 	public TanValue getTanValue() {
 		try {
 			if(m_tanList.isEmpty()) {
