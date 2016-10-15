@@ -51,7 +51,7 @@ CREATE TABLE tanlist (
 );
 
 INSERT INTO groups VALUES(1, 'Administrador');
-INSERT INTO groups VALUES(2, 'Usuário');
+INSERT INTO groups VALUES(2, 'Usuario');
 
 INSERT INTO messages VALUES(1001, 'Sistema iniciado.');
 INSERT INTO messages VALUES(1002, 'Sistema encerrado.');

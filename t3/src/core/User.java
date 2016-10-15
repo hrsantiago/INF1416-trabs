@@ -6,6 +6,8 @@ import java.sql.*;
 
 public class User
 {
+	public static final int MAX_ERRORS = 3;
+	
 	private int m_id;
 	private String m_name;
 	private String m_login;
@@ -61,10 +63,10 @@ public class User
 		return buf.toString();
 	}
 
-	public void addPasswordError(int maxError) {
+	public void addPasswordError() {
 		m_passwordErrors++;
-		if(m_passwordErrors >= maxError)
-			block(5 * 1000); // TODO: 2 min
+		if(m_passwordErrors >= MAX_ERRORS)
+			block(2 * 60 * 1000);
 	}
 
 	public int getPasswordError() {

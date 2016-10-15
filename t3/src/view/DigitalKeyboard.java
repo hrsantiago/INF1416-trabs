@@ -10,7 +10,6 @@ import java.awt.Toolkit;
 public class DigitalKeyboard {
 
 	private JFrame frame;
-	private ArrayList<DigitalKey> teclas;
 	private List<String> fonemas;
 	private int keysPressed;
 	private List<String> opt1;
@@ -35,7 +34,6 @@ public class DigitalKeyboard {
 	public void show() {
 		Collections.shuffle(fonemas, new Random(System.nanoTime()));
 	
-		teclas = new ArrayList<DigitalKey>();
 		keysPressed = 0;
 
 		frame = new JFrame("Digital Keyboard");
@@ -95,6 +93,8 @@ public class DigitalKeyboard {
 	}
 	
 	public class DigitalKey extends JButton {
+
+		private static final long serialVersionUID = 8645381884191901147L;
 		private List<String> fonemas;
 
 		public DigitalKey(String f1, String f2, String f3){
