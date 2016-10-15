@@ -19,7 +19,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 
 	private static final long serialVersionUID = -3739008754324139578L;
 
-	private User currentUser;
+	private User m_currentUser;
 
 	private JPanel m_loginPanel;
 	private DigitalKeyboard m_digitalKeyboard;
@@ -60,11 +60,11 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 				Manager manager = Manager.getInstance();
 				int userId = manager.getUserId(login);
 				if(userId != -1) {
-					currentUser = manager.getUser(userId);
+					m_currentUser = manager.getUser(userId);
 
-					if(currentUser.isBlocked()) {
+					if(m_currentUser.isBlocked()) {
 						JOptionPane.showMessageDialog(null, "Usuario com acesso bloqueado temporariamente.");
-						currentUser = null;
+						m_currentUser = null;
 						return;
 					}
 
@@ -104,7 +104,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 	}
 
 	private void createTanListPanel() {
-		User.TanValue tanValue = currentUser.getTanValue();
+		User.TanValue tanValue = m_currentUser.getTanValue();
 
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
@@ -123,18 +123,20 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 					destroyTanListPanel();
 					setVisible(false);
 					
-					RestrictedArea restrict = new RestrictedArea(currentUser, Window.this);
+					m_currentUser.resetPasswordErrors();
+					RestrictedArea restrict = new RestrictedArea(m_currentUser, Window.this);
 					restrict.show();
 				} else {
-					currentUser.addPasswordError();
-					if(currentUser.isBlocked()) {
-						currentUser = null;
+					m_currentUser.addPasswordError();
+					if(m_currentUser.isBlocked()) {
+						m_currentUser = null;
 						JOptionPane.showMessageDialog(null, "Usuario bloqueado!");
 						destroyTanListPanel();
 						createLoginPanel();
 						setVisible(true);
 					} else {
-						JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + String.valueOf(User.MAX_ERRORS-currentUser.getPasswordError()));
+						int remainingTries = User.MAX_ERRORS - m_currentUser.getPasswordErrors();
+						JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + remainingTries);
 						passwordField.setText("");
 					}
 				}
@@ -158,7 +160,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 	public void onCombinationsPrepared(List<String> combinations) {
 		boolean passOk = false;
 		for (String s : combinations) {
-			if(currentUser.isPasswordValid(s)) {
+			if(m_currentUser.isPasswordValid(s)) {
 				passOk = true;
 				break;
 			}
@@ -169,23 +171,25 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 			createTanListPanel();
 			setVisible(true);
 			System.out.println("Senha correta!");
+			m_currentUser.resetPasswordErrors();
 			JOptionPane.showMessageDialog(null, "Senha correta!");
 		} else {
-			currentUser.addPasswordError();
-			if(currentUser.isBlocked()) {
-				currentUser = null;
+			m_currentUser.addPasswordError();
+			if(m_currentUser.isBlocked()) {
+				m_currentUser = null;
 				JOptionPane.showMessageDialog(null, "User blocked!");
 				createLoginPanel();
 				setVisible(true);
 			} else {
-				JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + String.valueOf(User.MAX_ERRORS-currentUser.getPasswordError()));
+				int remainingTries = User.MAX_ERRORS - m_currentUser.getPasswordErrors();
+				JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + remainingTries);
 				createDigitalKeyboard();
 			}
 		}
 	}
 	
 	public void onRestrictedAreaExit() {
-		currentUser = null;
+		m_currentUser = null;
 		createLoginPanel();
 		setVisible(true);
 	}

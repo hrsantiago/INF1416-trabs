@@ -8,12 +8,12 @@ public class User
 {
 	public static final int MAX_ERRORS = 3;
 	public static final String[] FONEMAS = {
-			"BA", "BE", "BO",
-			"CA", "CE", "CO",
-			"DA", "DE", "DO",
-			"FA", "FE", "FO",
-			"GA", "GE", "GO"
-		};
+		"BA", "BE", "BO",
+		"CA", "CE", "CO",
+		"DA", "DE", "DO",
+		"FA", "FE", "FO",
+		"GA", "GE", "GO"
+	};
 	
 	private int m_id;
 	private String m_name;
@@ -87,8 +87,12 @@ public class User
 		if(m_passwordErrors >= MAX_ERRORS)
 			block(2 * 60 * 1000);
 	}
+	
+	public void resetPasswordErrors() {
+		m_passwordErrors = 0;
+	}
 
-	public int getPasswordError() {
+	public int getPasswordErrors() {
 		return m_passwordErrors;
 	}
 
