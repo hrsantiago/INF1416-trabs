@@ -8,6 +8,10 @@ import javax.swing.*;
 
 import core.*;
 
+/**
+ *  NewUserPanel class
+ *  Classe auditavel - Logs 600X
+ */
 public class NewUserPanel extends JPanel {
 
 	private static final long serialVersionUID = -7871019104393440384L;
