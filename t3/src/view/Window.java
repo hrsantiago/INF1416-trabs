@@ -63,7 +63,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 					currentUser = manager.getUser(userId);
 
 					if(currentUser.isBlocked()) {
-						JOptionPane.showMessageDialog(null, "User access is blocked.");
+						JOptionPane.showMessageDialog(null, "Usuario com acesso bloqueado temporariamente.");
 						currentUser = null;
 						return;
 					}
@@ -75,18 +75,21 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 					setVisible(false);
 				}
 				else
-					JOptionPane.showMessageDialog(null, "Login or password invalid.");
+					JOptionPane.showMessageDialog(null, "Login invalido.");
 			}
 		});
 		p.add(loginButton);
 		getRootPane().setDefaultButton(loginButton);
 
+		p.setVisible(true);
 		add(p);
 		m_loginPanel = p;
 	}
 
 	private void destroyLoginPanel() {
+		m_loginPanel.setVisible(false);
 		remove(m_loginPanel);
+		m_loginPanel.removeAll();
 		m_loginPanel = null;
 	}
 
@@ -126,9 +129,10 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 					currentUser.addPasswordError();
 					if(currentUser.isBlocked()) {
 						currentUser = null;
-						JOptionPane.showMessageDialog(null, "User blocked!");
+						JOptionPane.showMessageDialog(null, "Usuario bloqueado!");
 						destroyTanListPanel();
 						createLoginPanel();
+						setVisible(true);
 					} else {
 						JOptionPane.showMessageDialog(null, "Senha incorreta, tentativas sobrando: " + String.valueOf(User.MAX_ERRORS-currentUser.getPasswordError()));
 						passwordField.setText("");
@@ -138,13 +142,16 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 		});
 		p.add(loginButton);
 		getRootPane().setDefaultButton(loginButton);
-
+		p.setVisible(true);
+		
 		add(p);
 		m_tanListPanel = p;
 	}
 
 	private void destroyTanListPanel() {
+		m_tanListPanel.setVisible(false);
 		remove(m_tanListPanel);
+		m_tanListPanel.removeAll();
 		m_tanListPanel = null;
 	}
 

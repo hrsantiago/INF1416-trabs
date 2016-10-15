@@ -101,20 +101,24 @@ public class Manager
 		}
 	}
 
-	public void addRegistry(int messageId, int userId, String filename) throws SQLException
+	public void addRegistry(int messageId, int userId, String filename)
 	{
-		Statement statement = getConnection().createStatement();
-		statement.setQueryTimeout(30);
-		statement.executeUpdate("INSERT INTO registries(message_id,user_id,filename) VALUES("+messageId+","+userId+",'"+filename+"')");
-		// TODO escape filename
+		try {
+			Statement statement = getConnection().createStatement();
+			statement.setQueryTimeout(30);
+			statement.executeUpdate("INSERT INTO registries(message_id,user_id,filename) VALUES("+messageId+","+userId+",'"+filename+"')");
+			// TODO escape filename
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
 	}
 
-	public void addRegistry(int messageId) throws SQLException
+	public void addRegistry(int messageId)
 	{
 		addRegistry(messageId, -1, null);
 	}
 
-	public void addRegistry(int messageId, int userId) throws SQLException
+	public void addRegistry(int messageId, int userId) 
 	{
 		addRegistry(messageId, userId, null);
 	}
@@ -125,7 +129,7 @@ public class Manager
 		statement.setQueryTimeout(30);
 		ResultSet rs = statement.executeQuery("SELECT * FROM registries");
 		while(rs.next()) {
-			int code = rs.getInt("id");
+			//int code = rs.getInt("id");
 			int messageId = rs.getInt("message_id");
 			int userId = rs.getInt("user_id");
 			String filename = rs.getString("filename");
@@ -211,5 +215,30 @@ public class Manager
 	{
 		byte[] encoded = Files.readAllBytes(Paths.get(path));
 		return new String(encoded, encoding);
+	}
+	
+	public boolean createNewUser(User user){
+		try {
+			String insertQuery = "INSERT INTO users(name, login, group_id, password, salt,"
+					+ "certificate, private_key, directory) VALUES ("
+					+ "'" + user.getName() + "',"
+					+ "'" + user.getLogin() + "',"
+					+ user.getGroup().getId() + ","
+					+ "'" + user.getPassword() + "',"
+					+ "'" + user.getSalt() + "',"
+					+ "'',"
+					+ "'" + user.getPrivateKey() + "',"
+					+ "'" + user.getDirectory() + "')";
+			
+			System.out.println("Insert query: " + insertQuery);
+			Statement statement = getConnection().createStatement();
+			statement.setQueryTimeout(30);
+			statement.executeUpdate(insertQuery);
+			
+			return true;
+		} catch(SQLException ex) {
+			ex.printStackTrace();
+			return false;
+		}
 	}
 }

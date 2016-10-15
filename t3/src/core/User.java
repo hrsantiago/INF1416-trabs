@@ -29,6 +29,18 @@ public class User
 		public int index;
 		public String password;
 	}
+	
+	public User(){}
+	public User(String name, String login, String groupName, String plainPassword, String keyPath) {
+		m_name = name;
+		m_login = login;
+		m_group = new Group(groupName);
+		
+		m_salt = generateSalt();
+		m_password = encodePassword(plainPassword);
+		
+		m_privateKey = keyPath;
+	}
 
 	public void setId(int id) { m_id = id; }
 	public void setName(String name) { m_name = name; }
@@ -83,15 +95,29 @@ public class User
 	}
 
 	public boolean isPasswordValid(String plainPassword) {
+		return m_password.equals(encodePassword(plainPassword));
+	}
+	
+	private String generateSalt() {
+		SecureRandom rnd = new SecureRandom();
+		String chars = "0123456789";
+
+		StringBuffer sb = new StringBuffer();
+		for(int i = 0; i < 9; i++) 
+			sb.append(chars.charAt(rnd.nextInt(chars.length())));
+		
+		return sb.toString();
+	}
+	
+	private String encodePassword(String plainPassword) {
 		try {
 			byte[] data = (plainPassword + m_salt).getBytes("UTF8");
 			MessageDigest messageDigest = MessageDigest.getInstance("MD5");
 			messageDigest.update(data);
 			byte[] digest = messageDigest.digest();
-			return m_password.equals(byteToHex(digest));
-		}
-		catch(Exception e) {
-			return false;
+			return byteToHex(digest);
+		} catch(Exception ex) {
+			return null;
 		}
 	}
 
