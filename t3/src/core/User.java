@@ -39,13 +39,13 @@ public class User
 	}
 	
 	public User(){}
-	public User(String name, String login, Group group, String plainPassword, String keyPath) {
+	public User(String name, String login, Group group, String plainPassword, String certificatePath) {
 		m_name = name;
 		m_login = login;
 		m_group = group;
 		m_salt = generateSalt();
 		m_password = encodePassword(plainPassword);
-		m_privateKey = keyPath;
+		m_certificate = certificatePath;
 	}
 
 	public void setId(int id) { m_id = id; }

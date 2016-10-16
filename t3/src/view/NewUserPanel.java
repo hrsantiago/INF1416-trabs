@@ -2,7 +2,15 @@ package view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -19,7 +27,7 @@ public class NewUserPanel extends JPanel {
 	private static final long serialVersionUID = -7871019104393440384L;
 
 	private User m_currentUser;
-	private String m_keyPath;
+	private String m_certificatePath;
 	
 	private JTextField m_nameField;
 	private JTextField m_loginField;
@@ -71,7 +79,7 @@ public class NewUserPanel extends JPanel {
 		m_confirmPassField = new JPasswordField();
 		add(m_confirmPassField);
 		
-		add(new JLabel("Chave privada:"));
+		add(new JLabel("Certificado digital:"));
 		JButton fileChooseButton = new JButton("Selecionar arquivo");
 		fileChooseButton.addActionListener(new ActionListener() {
 			
@@ -82,12 +90,12 @@ public class NewUserPanel extends JPanel {
 		        if (returnValue == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = fileChooser.getSelectedFile();
 					System.out.println(selectedFile.getPath());
-					if(!selectedFile.getName().endsWith(".key")){
+					if(!selectedFile.getName().endsWith(".crt")){
 						m_manager.addRegistry(6003, m_currentUser.getId());
-						JOptionPane.showMessageDialog(null, "Arquivo invalido, deve ser uma chave privada .key");
+						JOptionPane.showMessageDialog(null, "Arquivo invalido, deve ser um certificado digital .crt");
 					} else {
 						JOptionPane.showMessageDialog(null, "Arquivo OK");
-						m_keyPath = selectedFile.getPath();
+						m_certificatePath = selectedFile.getPath();
 					}
 		        }
 			}
@@ -101,13 +109,32 @@ public class NewUserPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				m_manager.addRegistry(6002, m_currentUser.getId());
 
+
+				// TODO: tests with certificate
+				byte[] data;
+				try {
+					Path path = Paths.get(m_certificatePath);
+					data = Files.readAllBytes(path);
+					InputStream inStream = new ByteArrayInputStream(data); 
+					CertificateFactory cf = CertificateFactory.getInstance("X.509");
+					X509Certificate signercert = (X509Certificate)cf.generateCertificate(inStream);
+					System.out.println(signercert.getVersion() + " " + signercert.getSerialNumber() + " " + signercert.getNotAfter());
+				    inStream.close();
+				} catch (Exception e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				
 				if(validateFormNewUser()) {
+					
+					// TODO: confirmation displaying certificate data shows log 6004 and 6005
+
 					User newUser = m_manager.createNewUser(
 						m_nameField.getText(), 
 						m_loginField.getText(), 
 						(Group)m_groupCombo.getSelectedItem(), 
 						new String(m_passwordField.getPassword()),
-						m_keyPath
+						m_certificatePath
 					);
 					
 					if(newUser != null) {
@@ -164,8 +191,8 @@ public class NewUserPanel extends JPanel {
 		} else if (!pass.equals(conf)){
 			showErrorMessage("Senhas nao batem.");
 			return false;
-		} else if (m_keyPath == null){
-			showErrorMessage("Chave privada nao encontrada.");
+		} else if (m_certificatePath == null){
+			showErrorMessage("Certificado nao encontrado.");
 			return false;
 		} 
 		

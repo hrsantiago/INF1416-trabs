@@ -237,9 +237,9 @@ public class Manager
 		return new String(encoded, encoding);
 	}
 	
-	public User createNewUser(String name, String login, Group group, String plainPassword, String keyPath){
+	public User createNewUser(String name, String login, Group group, String plainPassword, String certificatePath){
 		try {
-			User user = new User(name, login, group, plainPassword, keyPath);
+			User user = new User(name, login, group, plainPassword, certificatePath);
 
 			String insertQuery = "INSERT INTO users(name, login, group_id, password, salt,"
 					+ "certificate, private_key, directory) VALUES ("
@@ -248,7 +248,7 @@ public class Manager
 					+ user.getGroup().getId() + ","
 					+ "'" + user.getPassword() + "',"
 					+ "'" + user.getSalt() + "',"
-					+ "'',"
+					+ "'" + user.getCertificate() + "',"
 					+ "'" + user.getPrivateKey() + "',"
 					+ "'" + user.getDirectory() + "')";
 			
