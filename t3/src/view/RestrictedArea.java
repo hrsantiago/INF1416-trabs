@@ -20,12 +20,13 @@ public class RestrictedArea implements PanelCloseListener {
 	private JFrame frame;
 	private JLabel m_headerLabel;
 	private User m_currentUser;
-	private Manager m_manager; //para fazer log
+	private Manager m_manager;
 	private RestrictedAreaExitListener m_exitListener;
 	
 	private NewUserPanel m_newUserPanel;
 	private JPanel m_uploadKeyPanel;
 	private JPanel m_secretFilesPanel;
+	private ExitPanel m_exitPanel;
 	
 	public RestrictedArea(User user, RestrictedAreaExitListener exitListener){
 		m_currentUser = user;
@@ -107,10 +108,9 @@ public class RestrictedArea implements PanelCloseListener {
 		sairItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				clearScreen();
 				m_manager.addRegistry(5005, m_currentUser.getId());
-				frame.setVisible(false);
-				frame.dispose();
-				m_exitListener.onRestrictedAreaExit();
+				showExitPanel();
 			}
 		});
 		
@@ -135,26 +135,37 @@ public class RestrictedArea implements PanelCloseListener {
 		clearScreen();
 	}
 	
+	public void onClose() {
+		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+	}
+	
 	private void clearScreen() {
-		if (m_newUserPanel != null) {
+		if(m_newUserPanel != null) {
 			m_newUserPanel.setVisible(false);
 			m_newUserPanel.removeAll();
 			frame.remove(m_newUserPanel);
 			m_newUserPanel = null;
 		}
 		
-		if (m_uploadKeyPanel != null) {
+		if(m_uploadKeyPanel != null) {
 			m_uploadKeyPanel.setVisible(false);
 			m_uploadKeyPanel.removeAll();
 			frame.remove(m_uploadKeyPanel);
 			m_uploadKeyPanel = null;
 		}
 		
-		if (m_secretFilesPanel != null) {
+		if(m_secretFilesPanel != null) {
 			m_secretFilesPanel.setVisible(false);
 			m_secretFilesPanel.removeAll();
 			frame.remove(m_secretFilesPanel);
 			m_secretFilesPanel = null;
+		}
+		
+		if(m_exitPanel != null) {
+			m_exitPanel.setVisible(false);
+			m_exitPanel.removeAll();
+			frame.remove(m_exitPanel);
+			m_exitPanel = null;
 		}
 	}
 	
@@ -175,22 +186,27 @@ public class RestrictedArea implements PanelCloseListener {
 		//TODO: implementar panel de arquivos secretos
 	}
 	
-	// TODO showExitPanel
-	
+	private void showExitPanel() {
+		updateHeaderLabel(State.EXIT);
+		m_exitPanel = new ExitPanel(m_currentUser, this);
+		frame.add(m_exitPanel);
+	}
+
 	private void updateHeaderLabel(State state) {
 		String header = "<html>";
 		header += "Login: " + m_currentUser.getLogin() + "<br>";
 		header += "Grupo: " + m_currentUser.getGroup().getName() + "<br>";
-		//header += "Descricao: " + m_currentUser.getDescription() + "<br>"; TODO: ??
+		header += "Nome: " + m_currentUser.getName() + "<br>";
 		header += "<br>";
 		if(state == State.MAIN || state == State.EXIT)
 			header += "Total de acessos do usuario: " + m_currentUser.getNumAccesses();
 		else if(state == State.REGISTER)
-			header += "Total de usuarios do sistema: " + "?"; // TODO
+			header += "Total de usuarios do sistema: " + m_manager.getUserCount();
 		else if(state == State.UPLOAD_KEY)
 			header += "Total de listagem do usuario: " + "?"; // TODO
 		else if(state == State.SECRET_FILES)
 			header += "Total de consultas do usuario: " + m_currentUser.getNumQueries();
+		header += "<br>";
 		header += "</html>";
 		m_headerLabel.setText(header);
 	}

@@ -215,6 +215,21 @@ public class Manager
 			return -1;
 		}
 	}
+	
+	public int getUserCount()
+	{
+		try {
+			Statement statement = getConnection().createStatement();
+			statement.setQueryTimeout(30);
+			ResultSet rs = statement.executeQuery("SELECT count(*) AS rowcount FROM users");
+			rs.next();
+			int count = rs.getInt("rowcount");
+			rs.close();
+			return count;
+		} catch (SQLException ex) {
+			return -1;
+		}
+	}
 
 	static String readFile(String path, Charset encoding) throws IOException
 	{
