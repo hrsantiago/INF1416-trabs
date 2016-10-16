@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +37,8 @@ public class NewUserPanel extends JPanel {
 	private PanelCloseListener m_pcl;
 	
 	private Manager m_manager;
+	
+	private X509Certificate signercert;
 	
 	public NewUserPanel(User user, PanelCloseListener pcl) {
 		m_currentUser = user;
@@ -117,18 +118,18 @@ public class NewUserPanel extends JPanel {
 					data = Files.readAllBytes(path);
 					InputStream inStream = new ByteArrayInputStream(data); 
 					CertificateFactory cf = CertificateFactory.getInstance("X.509");
-					X509Certificate signercert = (X509Certificate)cf.generateCertificate(inStream);
+					signercert = (X509Certificate)cf.generateCertificate(inStream);
 					System.out.println(signercert.getVersion() + " " + signercert.getSerialNumber() + " " + signercert.getNotAfter());
 				    inStream.close();
 				} catch (Exception e2) {
-					// TODO Auto-generated catch block
 					e2.printStackTrace();
+					showErrorMessage("Certificado digital inválido");
+					return;
 				}
 				
 				if(validateFormNewUser()) {
 					
 					// TODO: confirmation displaying certificate data shows log 6004 and 6005
-
 					User newUser = m_manager.createNewUser(
 						m_nameField.getText(), 
 						m_loginField.getText(), 
@@ -141,7 +142,7 @@ public class NewUserPanel extends JPanel {
 						//TODO: create tanList.txt WHERE?
 						try {
 							newUser.createTanList();
-							newUser.saveTanList("/home/henrique/"); // pode me xingar
+							newUser.saveTanList("./"); // pode me xingar: isso nao se faz auhauahua!
 						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}
@@ -196,12 +197,31 @@ public class NewUserPanel extends JPanel {
 			return false;
 		} 
 		
-		m_manager.addRegistry(6004, m_currentUser.getId());
-		return true;
+		//Falta a tan list, mas a gente so cria depois de inserir o usuario, entao deu ruim
+		//Prefiro deixar sem porque faz mais sentido criar a tan list somente depois de 
+		//confirmar os dados.
+		String msg = "Nome do usuario: " + m_nameField.getText() + "\n"
+				+ "Login do usuario: " + m_loginField.getText() + "\n"
+				+ "Grupo do usuario: " + m_groupCombo.getSelectedItem() + "\n"
+				+ "Certificado: \n"
+				+ "Versão: " + String.valueOf(signercert.getVersion()) + "\n"
+				+ "Serie: " + String.valueOf(signercert.getSerialNumber()) + "\n"
+				+ "Validade: " + signercert.getNotAfter().toString() + "\n"
+				+ "Tipo assinatura: " + signercert.getSigAlgName() + "\n"
+				+ "Emissor: " + signercert.getIssuerX500Principal().getName() + "\n"
+				+ "Sujeito: " + signercert.getSubjectX500Principal().getName() + "\n";
+		
+		if(JOptionPane.showConfirmDialog(null, msg, "Confirmação de dados", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+			m_manager.addRegistry(6004, m_currentUser.getId());
+			return true;
+		} else {
+			m_manager.addRegistry(6005, m_currentUser.getId());
+			return false;
+		}
 	}
 	
 	private void showErrorMessage(String msg) {
-		m_manager.addRegistry(6005, m_currentUser.getId());
+		//m_manager.addRegistry(6005, m_currentUser.getId());
 		JOptionPane.showMessageDialog(null, msg);
 	}
 }
