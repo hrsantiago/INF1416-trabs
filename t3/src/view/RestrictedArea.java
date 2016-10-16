@@ -25,7 +25,7 @@ public class RestrictedArea implements PanelCloseListener {
 	
 	private NewUserPanel m_newUserPanel;
 	private JPanel m_uploadKeyPanel;
-	private JPanel m_secretFilesPanel;
+	private SecretFilesPanel m_secretFilesPanel;
 	private ExitPanel m_exitPanel;
 	
 	public RestrictedArea(User user, RestrictedAreaExitListener exitListener){
@@ -183,7 +183,8 @@ public class RestrictedArea implements PanelCloseListener {
 	
 	private void showSecretFilesPanel() {
 		updateHeaderLabel(State.SECRET_FILES);
-		//TODO: implementar panel de arquivos secretos
+		m_secretFilesPanel = new SecretFilesPanel(m_currentUser, this);
+		frame.add(m_secretFilesPanel);
 	}
 	
 	private void showExitPanel() {
