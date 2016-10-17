@@ -106,6 +106,8 @@ INSERT INTO messages VALUES(9001, 'Tela de saída apresentada para <login_name>.
 INSERT INTO messages VALUES(9002, 'Botão sair pressionado por <login_name>.');
 INSERT INTO messages VALUES(9003, 'Botão voltar de sair para o menu principal pressionado por <login_name>.');
 
+
+
 -- Tests
 INSERT INTO users VALUES(1, 'Fulano', 'fulano', 1, '4f900d95a27390faec3179c76fec21e2', '123456789', 'Certificate:
     Data:
@@ -168,3 +170,14 @@ hvcNAQEFBQADgYEAJTVwNz/1BIoZyEPvqZbAxo4I7PWEKhcy40S3wCZ/aChdd9Fj
 x0vaYClQGBUMqv8zCnZRjQhu5VMAb2Y9G7WZr8ODDnfTlJSFKekvtocnKdbPPYgM
 x+yh0/gsP/raRytMjOBjSsNAqvloMWQk3SbRyZk5mZ9Zo22RvxtT/vAAiwM=
 -----END CERTIFICATE-----', null, null, 0, 0); -- Pass CAFEBE
+
+INSERT INTO tanlist VALUES(1, 1, 'P6YV', 0);
+INSERT INTO tanlist VALUES(2, 1, 'EVQ2', 0);
+INSERT INTO tanlist VALUES(3, 1, 'TP2M', 0);
+INSERT INTO tanlist VALUES(4, 1, '5GHF', 0);
+INSERT INTO tanlist VALUES(5, 1, 'S7HV', 0);
+INSERT INTO tanlist VALUES(6, 1, 'LQ97', 0);
+INSERT INTO tanlist VALUES(7, 1, 'SNQJ', 0);
+INSERT INTO tanlist VALUES(8, 1, 'DR6S', 0);
+INSERT INTO tanlist VALUES(9, 1, 'DRIL', 0);
+INSERT INTO tanlist VALUES(10, 1, '5K22', 0);
