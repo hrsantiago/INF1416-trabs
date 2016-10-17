@@ -30,7 +30,7 @@ public class ExitPanel extends JPanel {
 		m_manager = Manager.getInstance();
 		preparePanel();
 		
-		m_manager.addRegistry(9001, m_currentUser.getId());
+		m_manager.addRegistry(9001, m_currentUser.getLogin());
 	}
 	
 	private void preparePanel() {
@@ -44,7 +44,7 @@ public class ExitPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				m_manager.addRegistry(9002, m_currentUser.getId());
+				m_manager.addRegistry(9002, m_currentUser.getLogin());
 				m_pcl.onClose();
 			}
 		});
@@ -56,7 +56,7 @@ public class ExitPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				m_manager.addRegistry(9003, m_currentUser.getId());
+				m_manager.addRegistry(9003, m_currentUser.getLogin());
 				m_pcl.onPanelClose();
 			}
 		});

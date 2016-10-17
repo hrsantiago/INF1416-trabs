@@ -58,7 +58,7 @@ private static final long serialVersionUID = -7871019104393430384L;
 		m_manager = Manager.getInstance();
 		preparePanel();
 		
-		m_manager.addRegistry(8001, m_currentUser.getId());
+		m_manager.addRegistry(8001, m_currentUser.getLogin());
 	}
 	
 	private void preparePanel() {
@@ -77,17 +77,17 @@ private static final long serialVersionUID = -7871019104393430384L;
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				m_manager.addRegistry(8003, m_currentUser.getId());
+				m_manager.addRegistry(8003, m_currentUser.getLogin());
 				byte[] index = decryptFile(m_pathField.getText(), "index", passphraseField.getText()); 
 				if(index != null) {
-					m_manager.addRegistry(8007, m_currentUser.getId());
+					m_manager.addRegistry(8007, m_currentUser.getLogin());
 					try {
 						prepareTable(new String(index, "UTF8"));
 					} catch (UnsupportedEncodingException e1) {
 						e1.printStackTrace();
 					}
 				} else {
-					m_manager.addRegistry(8006, m_currentUser.getId());
+					m_manager.addRegistry(8006, m_currentUser.getLogin());
 				}
 			}
 		});
@@ -130,7 +130,7 @@ private static final long serialVersionUID = -7871019104393430384L;
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				m_manager.addRegistry(8002, m_currentUser.getId());
+				m_manager.addRegistry(8002, m_currentUser.getLogin());
 				m_pcl.onPanelClose();
 			}
 		});
@@ -155,7 +155,7 @@ private static final long serialVersionUID = -7871019104393430384L;
 	private byte[] decryptFile(String path, String name, String passphrase) {
 		
 		try {
-			m_manager.addRegistry(8008, m_currentUser.getId(), name);
+			m_manager.addRegistry(8008, m_currentUser.getLogin(), name);
 			
 			byte[] envData = Files.readAllBytes(Paths.get(path + "/" + name + ".env"));
 			PrivateKey privkey = User.getPrivateKeyObject(m_currentUser.getPrivateKey(), passphrase);
@@ -178,7 +178,7 @@ private static final long serialVersionUID = -7871019104393430384L;
 			
 			byte[] plainIndexData = cipher.doFinal(indexData);
 			
-			m_manager.addRegistry(8009, m_currentUser.getId(), name);
+			m_manager.addRegistry(8009, m_currentUser.getLogin(), name);
 
 			Path pathCertificate = Paths.get(m_currentUser.getCertificate());
 			byte[] pubbytes = Files.readAllBytes(pathCertificate);
@@ -193,24 +193,24 @@ private static final long serialVersionUID = -7871019104393430384L;
 			byte[] sigData = Files.readAllBytes(Paths.get(path + "/" + name + ".asd"));
 			if(!sig.verify(sigData)) {
 				JOptionPane.showMessageDialog(null, name + " pode ter sido adulterada!");
-				m_manager.addRegistry(8012, m_currentUser.getId(), name);
+				m_manager.addRegistry(8012, m_currentUser.getLogin(), name);
 			}
 			else {
-				m_manager.addRegistry(8010, m_currentUser.getId(), name);
+				m_manager.addRegistry(8010, m_currentUser.getLogin(), name);
 			}
 			return plainIndexData;
 			
 		} catch (NoSuchPaddingException e) {
-			m_manager.addRegistry(8011, m_currentUser.getId(), name);
+			m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
 			e.printStackTrace();
 		} catch (InvalidKeyException e) {
-			m_manager.addRegistry(8011, m_currentUser.getId(), name);
+			m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
 			e.printStackTrace();
 		} catch (IllegalBlockSizeException e) {
-			m_manager.addRegistry(8011, m_currentUser.getId(), name);
+			m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
 			e.printStackTrace();
 		} catch (BadPaddingException e) {
-			m_manager.addRegistry(8011, m_currentUser.getId(), name);
+			m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
 			e.printStackTrace();
 		} 
 		catch (Exception e) { e.printStackTrace(); }

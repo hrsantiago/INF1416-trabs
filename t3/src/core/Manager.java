@@ -106,12 +106,12 @@ public class Manager
 		}
 	}
 
-	public void addRegistry(int messageId, int userId, String filename)
+	public void addRegistry(int messageId, String login, String filename)
 	{
 		try {
 			Statement statement = getConnection().createStatement();
 			statement.setQueryTimeout(30);
-			statement.executeUpdate("INSERT INTO registries(message_id,user_id,filename) VALUES("+messageId+","+userId+",'"+filename+"')");
+			statement.executeUpdate("INSERT INTO registries(message_id,user_login,filename) VALUES("+messageId+",'"+login+"','"+filename+"')");
 			// TODO escape filename
 		} catch (SQLException ex) {
 			ex.printStackTrace();
@@ -120,12 +120,12 @@ public class Manager
 
 	public void addRegistry(int messageId)
 	{
-		addRegistry(messageId, -1, null);
+		addRegistry(messageId, null, null);
 	}
 
-	public void addRegistry(int messageId, int userId) 
+	public void addRegistry(int messageId, String login) 
 	{
-		addRegistry(messageId, userId, null);
+		addRegistry(messageId, login, null);
 	}
 
 	public void loadRegistries() throws SQLException
@@ -134,16 +134,15 @@ public class Manager
 		statement.setQueryTimeout(30);
 		ResultSet rs = statement.executeQuery("SELECT * FROM registries");
 		while(rs.next()) {
-			//int code = rs.getInt("id");
 			int messageId = rs.getInt("message_id");
-			int userId = rs.getInt("user_id");
+			String userLogin = rs.getString("user_login");
 			String filename = rs.getString("filename");
 			String created = rs.getString("created");
 
 			Message message = m_messages.get(messageId);
 			Registry registry = new Registry();
 			registry.setMessage(message);
-			registry.setUser(getUser(userId));
+			registry.setUserLogin(userLogin);
 			registry.setFilename(filename);
 			registry.setCreated(created);
 			m_registries.add(registry);

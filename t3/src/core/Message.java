@@ -11,11 +11,11 @@ public class Message
 		m_text = text;
 	}
 
-	public String getText(User user, String filename)
+	public String getText(String userLogin, String filename)
 	{
 		String result = m_text;
 		if(result.contains("<login_name>"))
-			result = result.replaceAll("<login_name>", user.getLogin());
+			result = result.replaceAll("<login_name>", userLogin);
 		if(result.contains("<arq_name>"))
 			result = result.replaceAll("<arq_name>", filename);
 		return result;

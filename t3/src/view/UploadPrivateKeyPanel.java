@@ -51,7 +51,7 @@ public class UploadPrivateKeyPanel extends JPanel {
 		
 		preparePanel();
 		
-		m_manager.addRegistry(7001, m_currentUser.getId());
+		m_manager.addRegistry(7001, m_currentUser.getLogin());
 	}
 	
 	private void preparePanel() {
@@ -69,7 +69,7 @@ public class UploadPrivateKeyPanel extends JPanel {
 					File selectedFile = fileChooser.getSelectedFile();
 					System.out.println(selectedFile.getPath());
 					if(!selectedFile.getName().endsWith(".key")){
-						m_manager.addRegistry(7002, m_currentUser.getId());
+						m_manager.addRegistry(7002, m_currentUser.getLogin());
 						JOptionPane.showMessageDialog(null, "Arquivo invalido, deve ser um certificado digital .key");
 					} else {
 						JOptionPane.showMessageDialog(null, "Arquivo OK");
@@ -110,7 +110,7 @@ public class UploadPrivateKeyPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				m_manager.addRegistry(7006, m_currentUser.getId());
+				m_manager.addRegistry(7006, m_currentUser.getLogin());
 				m_pcl.onPanelClose();
 			}
 		});
@@ -123,7 +123,7 @@ public class UploadPrivateKeyPanel extends JPanel {
 		try {
 			PrivateKey privkey = User.getPrivateKeyObject(m_keyPath, m_passphraseField.getText());
 			if(privkey == null) {
-				m_manager.addRegistry(7003, m_currentUser.getId());
+				m_manager.addRegistry(7003, m_currentUser.getLogin());
 				JOptionPane.showMessageDialog(null, "Frase secreta invalida");
 				return false;
 			}
@@ -145,11 +145,11 @@ public class UploadPrivateKeyPanel extends JPanel {
 			sig.update(testArray);
 			
 			if(sig.verify(ds)){
-				m_manager.addRegistry(7005, m_currentUser.getId());
+				m_manager.addRegistry(7005, m_currentUser.getLogin());
 				JOptionPane.showMessageDialog(null, "Chave validada!");
 				return true;
 			} else {
-				m_manager.addRegistry(7004, m_currentUser.getId());
+				m_manager.addRegistry(7004, m_currentUser.getLogin());
 				JOptionPane.showMessageDialog(null, "Chave rejeitada!");
 				return false;
 			}

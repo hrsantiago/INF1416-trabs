@@ -29,10 +29,10 @@ CREATE TABLE groups (
 CREATE TABLE registries (
   id INTEGER PRIMARY KEY,
   message_id INTEGER NOT NULL,
-  user_id INTEGER,
+  user_login TEXT,
   filename TEXT,
   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(user_id) REFERENCES users(id),
+  --FOREIGN KEY(user_id) REFERENCES users(id),
   FOREIGN KEY(message_id) REFERENCES messages(id)
 );
 
@@ -109,7 +109,3 @@ INSERT INTO messages VALUES(9003, 'Botão voltar de sair para o menu principal p
 -- Tests
 INSERT INTO users VALUES(1, 'Fulano', 'fulano', 1, '4f900d95a27390faec3179c76fec21e2', '123456789', './Keys/usercert-x509.crt', null, null, 0, 0); -- Pass CAFEBE
 INSERT INTO users VALUES(2, 'Cicrano', 'cicrano', 2, '8872d019ddea79565e18298d77e1a065', '123456789', './Keys/usercert-x509.crt', null, null, 0, 0); -- Pass BAGEGA
-
-INSERT INTO registries (id, message_id) VALUES(1, 1001);
-INSERT INTO registries (id, message_id, user_id, filename) VALUES(2, 8011, 1, 'arquivox');
-INSERT INTO registries (id, message_id, user_id) VALUES(3, 5002, 2);

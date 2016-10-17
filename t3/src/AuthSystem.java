@@ -17,19 +17,20 @@ public class AuthSystem
 			Window window = new Window();
 			window.setTitle("Auth System");
 			window.setVisible(true);
-
-			manager.addRegistry(1002);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-		finally {
-			try {
+		
+		Runtime.getRuntime().addShutdownHook(new Thread()
+		{
+		    @Override
+		    public void run()
+		    {
+		    	manager.addRegistry(1002);
 				manager.terminate();
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
+		    }
+		});
+		
 	}
 }

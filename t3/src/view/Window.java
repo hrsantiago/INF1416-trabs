@@ -71,18 +71,18 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 					m_currentUser = manager.getUser(userId);
 
 					if(m_currentUser.isBlocked()) {
-						m_manager.addRegistry(2004, m_currentUser.getId());
+						m_manager.addRegistry(2004, m_currentUser.getLogin());
 						JOptionPane.showMessageDialog(null, "Usuario com acesso bloqueado temporariamente.");
 						m_currentUser = null;
 						return;
 					}
+					m_manager.addRegistry(2003, m_currentUser.getLogin());
 					destroyLoginPanel();
-					m_manager.addRegistry(2003, m_currentUser.getId());
-					m_manager.addRegistry(3001, m_currentUser.getId());
+					m_manager.addRegistry(3001, m_currentUser.getLogin());
 					createDigitalKeyboard();
 					setVisible(false);
 				} else {
-					m_manager.addRegistry(2005);
+					m_manager.addRegistry(2005, login);
 					JOptionPane.showMessageDialog(null, "Login invalido.");
 				}
 			}
@@ -114,7 +114,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 	}
 
 	private void createTanListPanel() {
-		m_manager.addRegistry(4001, m_currentUser.getId());
+		m_manager.addRegistry(4001, m_currentUser.getLogin());
 		User.TanValue tanValue = m_currentUser.getTanValue();
 
 		JPanel p = new JPanel();
@@ -130,7 +130,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 			public void actionPerformed(ActionEvent e) {
 				String password = passwordField.getText();
 				if(password.equals(tanValue.password)) {
-					m_manager.addRegistry(4003, m_currentUser.getId());
+					m_manager.addRegistry(4003, m_currentUser.getLogin());
 					destroyTanListPanel();
 					setVisible(false);
 
@@ -142,17 +142,17 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 					m_currentUser.addPasswordError();
 					
 					if(m_currentUser.getPasswordErrors() == 1) 
-						m_manager.addRegistry(4004, m_currentUser.getId());
+						m_manager.addRegistry(4004, m_currentUser.getLogin());
 					else if (m_currentUser.getPasswordErrors() == 2)
-						m_manager.addRegistry(4005, m_currentUser.getId());
+						m_manager.addRegistry(4005, m_currentUser.getLogin());
 					else if (m_currentUser.getPasswordErrors() == 0)
-						m_manager.addRegistry(4006, m_currentUser.getId());
+						m_manager.addRegistry(4006, m_currentUser.getLogin());
 					
 					if(m_currentUser.isBlocked()) {
-						m_manager.addRegistry(4009, m_currentUser.getId());
-						m_currentUser = null;
+						m_manager.addRegistry(4009, m_currentUser.getLogin());
 						JOptionPane.showMessageDialog(null, "Usuario bloqueado!");
 						destroyTanListPanel();
+						m_currentUser = null;
 						createLoginPanel();
 						setVisible(true);
 					} else {
@@ -172,7 +172,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 	}
 
 	private void destroyTanListPanel() {
-		m_manager.addRegistry(4002, m_currentUser.getId());
+		m_manager.addRegistry(4002, m_currentUser.getLogin());
 		m_tanListPanel.setVisible(false);
 		remove(m_tanListPanel);
 		m_tanListPanel.removeAll();
@@ -192,25 +192,25 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 		passOk = true; // TODO: remove this
 
 		if(passOk) {
-			m_manager.addRegistry(3003, m_currentUser.getId());
+			m_manager.addRegistry(3003, m_currentUser.getLogin());
+			m_manager.addRegistry(3002, m_currentUser.getLogin());
 			createTanListPanel();
 			setVisible(true);
 			System.out.println("Senha correta!");
 			m_currentUser.resetPasswordErrors();
-			m_manager.addRegistry(3002, m_currentUser.getId());
 		} else {
-			m_manager.addRegistry(3004, m_currentUser.getId());
+			m_manager.addRegistry(3004, m_currentUser.getLogin());
 			m_currentUser.addPasswordError();
 			
 			if(m_currentUser.getPasswordErrors() == 1) 
-				m_manager.addRegistry(3005, m_currentUser.getId());
+				m_manager.addRegistry(3005, m_currentUser.getLogin());
 			else if (m_currentUser.getPasswordErrors() == 2)
-				m_manager.addRegistry(3006, m_currentUser.getId());
+				m_manager.addRegistry(3006, m_currentUser.getLogin());
 			else if (m_currentUser.getPasswordErrors() == 0)
-				m_manager.addRegistry(3007, m_currentUser.getId());
+				m_manager.addRegistry(3007, m_currentUser.getLogin());
 
 			if(m_currentUser.isBlocked()) {
-				m_manager.addRegistry(3008, m_currentUser.getId());
+				m_manager.addRegistry(3008, m_currentUser.getLogin());
 				m_currentUser = null;
 				JOptionPane.showMessageDialog(null, "User blocked!");
 				createLoginPanel();

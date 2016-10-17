@@ -76,8 +76,6 @@ public class RestrictedArea implements PanelCloseListener {
 		
 		m_headerLabel = new JLabel();
 		frame.add(m_headerLabel);
-		
-		m_manager.addRegistry(5001, m_currentUser.getId());
 	}
 	
 	public void show() {
@@ -89,7 +87,7 @@ public class RestrictedArea implements PanelCloseListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				clearScreen();
-				m_manager.addRegistry(5002, m_currentUser.getId());
+				m_manager.addRegistry(5002, m_currentUser.getLogin());
 				showNewUserPanel();
 			}
 		});
@@ -99,7 +97,7 @@ public class RestrictedArea implements PanelCloseListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				clearScreen();
-				m_manager.addRegistry(5003, m_currentUser.getId());
+				m_manager.addRegistry(5003, m_currentUser.getLogin());
 				showUploadKeyPanel();
 			}
 		});
@@ -109,7 +107,7 @@ public class RestrictedArea implements PanelCloseListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				clearScreen();
-				m_manager.addRegistry(5004, m_currentUser.getId());
+				m_manager.addRegistry(5004, m_currentUser.getLogin());
 				showSecretFilesPanel();
 			}
 		});
@@ -119,7 +117,7 @@ public class RestrictedArea implements PanelCloseListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				clearScreen();
-				m_manager.addRegistry(5005, m_currentUser.getId());
+				m_manager.addRegistry(5005, m_currentUser.getLogin());
 				showExitPanel();
 			}
 		});
@@ -138,7 +136,7 @@ public class RestrictedArea implements PanelCloseListener {
 		frame.setJMenuBar(menu);
 		frame.setVisible(true);
 		
-		m_manager.addRegistry(5001, m_currentUser.getId());
+		m_manager.addRegistry(5001, m_currentUser.getLogin());
 	}
 	
 	public void onPanelClose() {

@@ -48,7 +48,7 @@ public class NewUserPanel extends JPanel {
 		
 		preparePanel();
 		
-		m_manager.addRegistry(6001, m_currentUser.getId());
+		m_manager.addRegistry(6001, m_currentUser.getLogin());
 	}
 	
 	private void preparePanel() {
@@ -92,7 +92,7 @@ public class NewUserPanel extends JPanel {
 					File selectedFile = fileChooser.getSelectedFile();
 					System.out.println(selectedFile.getPath());
 					if(!selectedFile.getName().endsWith(".crt")){
-						m_manager.addRegistry(6003, m_currentUser.getId());
+						m_manager.addRegistry(6003, m_currentUser.getLogin());
 						JOptionPane.showMessageDialog(null, "Arquivo invalido, deve ser um certificado digital .crt");
 					} else {
 						JOptionPane.showMessageDialog(null, "Arquivo OK");
@@ -108,7 +108,7 @@ public class NewUserPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				m_manager.addRegistry(6002, m_currentUser.getId());
+				m_manager.addRegistry(6002, m_currentUser.getLogin());
 
 				byte[] data;
 				try {
@@ -156,7 +156,7 @@ public class NewUserPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				m_manager.addRegistry(6006, m_currentUser.getId());
+				m_manager.addRegistry(6006, m_currentUser.getLogin());
 				m_pcl.onPanelClose();
 			}
 		});
@@ -208,10 +208,10 @@ public class NewUserPanel extends JPanel {
 				+ "Sujeito: " + signercert.getSubjectX500Principal().getName() + "\n";
 		
 		if(JOptionPane.showConfirmDialog(null, msg, "Confirmação de dados", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
-			m_manager.addRegistry(6004, m_currentUser.getId());
+			m_manager.addRegistry(6004, m_currentUser.getLogin());
 			return true;
 		} else {
-			m_manager.addRegistry(6005, m_currentUser.getId());
+			m_manager.addRegistry(6005, m_currentUser.getLogin());
 			return false;
 		}
 	}
