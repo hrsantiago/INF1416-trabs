@@ -180,9 +180,11 @@ public class User
 		Manager manager = Manager.getInstance();
 		
 		try {
-			Statement statement = manager.getConnection().createStatement();
+			PreparedStatement statement = manager.getConnection().prepareStatement("UPDATE tanlist SET used = 1 WHERE user_id = ? AND id = ?");
 			statement.setQueryTimeout(30);
-			int ret = statement.executeUpdate("UPDATE tanlist SET used = 1 WHERE user_id = " + m_id + " AND id = " + tanValue.index);
+			statement.setInt(1, m_id);
+			statement.setInt(2, tanValue.index);
+			int ret = statement.executeUpdate();
 			if(ret == 1) {
 				m_tanList.remove(tanValue);
 				return true;
@@ -196,9 +198,10 @@ public class User
 	private boolean loadTanList() throws SQLException {
 		boolean ret = false;
 		Manager manager = Manager.getInstance();
-		Statement statement = manager.getConnection().createStatement();
+		PreparedStatement statement = manager.getConnection().prepareStatement("SELECT * FROM tanlist WHERE used = 0 AND user_id = ?");
 		statement.setQueryTimeout(30);
-		ResultSet rs = statement.executeQuery("SELECT * FROM tanlist WHERE used = 0 AND user_id = " + m_id);
+		statement.setInt(1, m_id);
+		ResultSet rs = statement.executeQuery();
 		while(rs.next()) {
 			TanValue tanValue = new TanValue();
 			tanValue.index = rs.getInt("id");
@@ -211,10 +214,12 @@ public class User
 
 	public void createTanList() throws SQLException {
 		Manager manager = Manager.getInstance();
-		Statement statement = manager.getConnection().createStatement();
-		statement.setQueryTimeout(30);
-		statement.executeUpdate("DELETE FROM tanlist WHERE user_id = " + m_id);
+		PreparedStatement delstatement = manager.getConnection().prepareStatement("DELETE FROM tanlist WHERE user_id = ?");
+		delstatement.setQueryTimeout(30);
+		delstatement.setInt(1, m_id);
+		delstatement.executeUpdate();
 
+		Statement statement = manager.getConnection().createStatement();
 		SecureRandom rnd = new SecureRandom();
 		String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -284,7 +289,6 @@ public class User
 	        PrivateKey privkey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privKeyB));
 	        return privkey;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
