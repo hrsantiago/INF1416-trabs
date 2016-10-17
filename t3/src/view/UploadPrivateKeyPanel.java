@@ -9,20 +9,12 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.Key;
-import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.PKCS8EncodedKeySpec;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.swing.*;
-import javax.xml.bind.DatatypeConverter;
 
 import core.Manager;
 import core.User;

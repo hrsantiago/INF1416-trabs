@@ -215,7 +215,7 @@ public class RestrictedArea implements PanelCloseListener {
 		else if(state == State.REGISTER)
 			header += "Total de usuarios do sistema: " + m_manager.getUserCount();
 		else if(state == State.UPLOAD_KEY)
-			header += "Total de listagem do usuario: " + "?"; // TODO
+			header += "Total de listagem do usuario: " + m_currentUser.getNumQueries();
 		else if(state == State.SECRET_FILES)
 			header += "Total de consultas do usuario: " + m_currentUser.getNumQueries();
 		header += "<br>";

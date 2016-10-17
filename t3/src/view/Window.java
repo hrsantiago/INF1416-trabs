@@ -57,7 +57,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 
 		p.add(new JLabel("Login:"));
 
-		JTextField loginField = new JTextField("fulano"); // TODO remove this
+		JTextField loginField = new JTextField();
 		p.add(loginField);
 
 		JButton loginButton = new JButton("Login");
@@ -122,7 +122,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 
 		p.add(new JLabel("One time password #" + tanValue.index));
 
-		JTextField passwordField = new JTextField(tanValue.password); // TODO: remove this
+		JTextField passwordField = new JTextField();
 		p.add(passwordField);
 
 		JButton loginButton = new JButton("Login");
@@ -188,8 +188,6 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 			}
 		}
 		destroyDigitalKeyboard();
-
-		passOk = true; // TODO: remove this
 
 		if(passOk) {
 			m_manager.addRegistry(3003, m_currentUser.getLogin());

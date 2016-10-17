@@ -109,10 +109,12 @@ public class Manager
 	public void addRegistry(int messageId, String login, String filename)
 	{
 		try {
-			Statement statement = getConnection().createStatement();
+			PreparedStatement statement = getConnection().prepareStatement("INSERT INTO registries(message_id,user_login,filename) VALUES(?,?,?)");
 			statement.setQueryTimeout(30);
-			statement.executeUpdate("INSERT INTO registries(message_id,user_login,filename) VALUES("+messageId+",'"+login+"','"+filename+"')");
-			// TODO escape filename
+			statement.setInt(1, messageId);
+			statement.setString(2, login);
+			statement.setString(3, filename);
+			statement.executeUpdate();
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
@@ -153,9 +155,10 @@ public class Manager
 
 	public void loadUser(int id) throws SQLException
 	{
-		Statement statement = getConnection().createStatement();
+		PreparedStatement statement = getConnection().prepareStatement("SELECT * FROM users WHERE id = ?");
 		statement.setQueryTimeout(30);
-		ResultSet rs = statement.executeQuery("SELECT * FROM users WHERE id = " + id);
+		statement.setInt(1, id);
+		ResultSet rs = statement.executeQuery();
 		while(rs.next()) {
 			String name = rs.getString("name");
 			String login = rs.getString("login");
@@ -203,9 +206,10 @@ public class Manager
 	public int getUserId(String login)
 	{
 		try {
-			Statement statement = getConnection().createStatement();
+			PreparedStatement statement = getConnection().prepareStatement("SELECT id FROM users WHERE login = ?");
 			statement.setQueryTimeout(30);
-			ResultSet rs = statement.executeQuery("SELECT id FROM users WHERE login = '" + login + "'"); // TODO escape login
+			statement.setString(1, login);
+			ResultSet rs = statement.executeQuery(); 
 			while(rs.next()) {
 				return rs.getInt("id");
 			}
@@ -241,20 +245,21 @@ public class Manager
 			User user = new User(name, login, group, plainPassword, certificatePath);
 
 			String insertQuery = "INSERT INTO users(name, login, group_id, password, salt,"
-					+ "certificate, private_key, directory) VALUES ("
-					+ "'" + user.getName() + "',"
-					+ "'" + user.getLogin() + "',"
-					+ user.getGroup().getId() + ","
-					+ "'" + user.getPassword() + "',"
-					+ "'" + user.getSalt() + "',"
-					+ "'" + user.getCertificate() + "',"
-					+ "'" + user.getPrivateKey() + "',"
-					+ "'" + user.getDirectory() + "')";
+					+ "certificate, private_key, directory) VALUES (?, ?, ?, ?, ?, ?, ?)";
 			
 			System.out.println("Insert query: " + insertQuery);
-			Statement statement = getConnection().createStatement();
+			PreparedStatement statement = getConnection().prepareStatement(insertQuery);
 			statement.setQueryTimeout(30);
-			int ret = statement.executeUpdate(insertQuery);
+			statement.setString(1, user.getName());
+			statement.setString(2, user.getLogin());
+			statement.setInt(3, user.getGroup().getId());
+			statement.setString(4, user.getPassword());
+			statement.setString(5, user.getSalt());
+			statement.setString(6, user.getCertificate());
+			statement.setString(7, user.getPrivateKey());
+			statement.setString(8, user.getDirectory());
+			
+			int ret = statement.executeUpdate();
 			if(ret == 1) {
 				int userId = getUserId(login);
 				return getUser(userId);
@@ -267,12 +272,14 @@ public class Manager
 	
 	public boolean updateUserPrivateKey(User user) {
 		try {
-			String updateQuery = "UPDATE users SET private_key = '" + user.getPrivateKey() + "' WHERE login = '" + user.getLogin() + "'";
+			String updateQuery = "UPDATE users SET private_key = ? WHERE login = ?";
 			
 			System.out.println("Insert query: " + updateQuery);
-			Statement statement = getConnection().createStatement();
+			PreparedStatement statement = getConnection().prepareStatement(updateQuery);
 			statement.setQueryTimeout(30);
-			int ret = statement.executeUpdate(updateQuery);
+			statement.setString(1, user.getPrivateKey());
+			statement.setString(2, user.getLogin());
+			int ret = statement.executeUpdate();
 			return ret == 1;
 		} catch(SQLException ex) {
 			ex.printStackTrace();
@@ -282,9 +289,12 @@ public class Manager
 	
 	public boolean updateUserCounters(User user) {
 		try {
-			Statement statement = getConnection().createStatement();
+			PreparedStatement statement = getConnection().prepareStatement("UPDATE users SET num_accesses = ?, num_queries = ? WHERE login = ?");
 			statement.setQueryTimeout(30);
-			int ret = statement.executeUpdate("UPDATE users SET num_accesses = " + user.getNumAccesses() + ", num_queries = " + user.getNumQueries() + " WHERE login = '" + user.getLogin() + "'");
+			statement.setInt(1, user.getNumAccesses());
+			statement.setInt(2, user.getNumQueries());
+			statement.setString(3, user.getLogin());
+			int ret = statement.executeUpdate();
 			return ret == 1;
 		} catch(SQLException ex) {
 			ex.printStackTrace();

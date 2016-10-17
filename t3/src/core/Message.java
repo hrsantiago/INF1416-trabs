@@ -10,6 +10,8 @@ public class Message
 		m_code = code;
 		m_text = text;
 	}
+	
+	public int getCode() { return m_code; }
 
 	public String getText(String userLogin, String filename)
 	{
