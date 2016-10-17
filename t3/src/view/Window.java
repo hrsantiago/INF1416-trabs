@@ -78,6 +78,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 					}
 					destroyLoginPanel();
 					m_manager.addRegistry(2003, m_currentUser.getId());
+					m_manager.addRegistry(3001, m_currentUser.getId());
 					createDigitalKeyboard();
 					setVisible(false);
 				} else {
@@ -103,13 +104,11 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 	}
 
 	private void createDigitalKeyboard() {
-		m_manager.addRegistry(3001, m_currentUser.getId());
 		m_digitalKeyboard = new DigitalKeyboard(Window.this);
 		m_digitalKeyboard.show();
 	}
 
 	private void destroyDigitalKeyboard() {
-		m_manager.addRegistry(3002, m_currentUser.getId());
 		m_digitalKeyboard.dismiss();
 		m_digitalKeyboard = null;
 	}
@@ -147,7 +146,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 						m_manager.addRegistry(4004, m_currentUser.getId());
 					else if (m_currentUser.getPasswordErrors() == 2)
 						m_manager.addRegistry(4005, m_currentUser.getId());
-					else if (m_currentUser.getPasswordErrors() == 3)
+					else if (m_currentUser.getPasswordErrors() == 0)
 						m_manager.addRegistry(4006, m_currentUser.getId());
 					
 					if(m_currentUser.isBlocked()) {
@@ -199,6 +198,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 			setVisible(true);
 			System.out.println("Senha correta!");
 			m_currentUser.resetPasswordErrors();
+			m_manager.addRegistry(3002, m_currentUser.getId());
 		} else {
 			m_manager.addRegistry(3004, m_currentUser.getId());
 			m_currentUser.addPasswordError();
@@ -207,7 +207,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 				m_manager.addRegistry(3005, m_currentUser.getId());
 			else if (m_currentUser.getPasswordErrors() == 2)
 				m_manager.addRegistry(3006, m_currentUser.getId());
-			else if (m_currentUser.getPasswordErrors() == 3)
+			else if (m_currentUser.getPasswordErrors() == 0)
 				m_manager.addRegistry(3007, m_currentUser.getId());
 
 			if(m_currentUser.isBlocked()) {
