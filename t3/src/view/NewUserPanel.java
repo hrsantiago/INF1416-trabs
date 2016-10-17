@@ -125,27 +125,32 @@ public class NewUserPanel extends JPanel {
 				}
 				
 				if(validateFormNewUser()) {
-					User newUser = m_manager.createNewUser(
-						m_nameField.getText(), 
-						m_loginField.getText(), 
-						(Group)m_groupCombo.getSelectedItem(), 
-						new String(m_passwordField.getPassword()),
-						m_certificatePath
-					);
-					
-					if(newUser != null) {
-						try {
-							newUser.createTanList();
-							newUser.saveTanList("./");
-							
-							JOptionPane.showMessageDialog(null, newUser.getTanListText());
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
+					try{
+						User newUser = m_manager.createNewUser(
+							m_nameField.getText(), 
+							m_loginField.getText(), 
+							(Group)m_groupCombo.getSelectedItem(), 
+							new String(m_passwordField.getPassword()),
+							new String(data, "UTF-8")
+						);
 						
-						JOptionPane.showMessageDialog(null, "Usuario cadastrado");
-					} else {
+						if(newUser != null) {
+							try {
+								newUser.createTanList();
+								newUser.saveTanList("./");
+								
+								JOptionPane.showMessageDialog(null, newUser.getTanListText());
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
+							
+							JOptionPane.showMessageDialog(null, "Usuario cadastrado");
+						} else {
+							JOptionPane.showMessageDialog(null, "Falha ao cadastrar usuario");
+						}
+					} catch (Exception ex) {
 						JOptionPane.showMessageDialog(null, "Falha ao cadastrar usuario");
+						ex.printStackTrace();
 					}
 				}
 			}
@@ -193,9 +198,6 @@ public class NewUserPanel extends JPanel {
 			return false;
 		} 
 		
-		//Falta a tan list, mas a gente so cria depois de inserir o usuario, entao deu ruim
-		//Prefiro deixar sem porque faz mais sentido criar a tan list somente depois de 
-		//confirmar os dados.
 		String msg = "Nome do usuario: " + m_nameField.getText() + "\n"
 				+ "Login do usuario: " + m_loginField.getText() + "\n"
 				+ "Grupo do usuario: " + m_groupCombo.getSelectedItem() + "\n"

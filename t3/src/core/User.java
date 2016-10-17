@@ -254,7 +254,7 @@ public class User
 			writer = new PrintWriter(path + "/" + filename, "US-ASCII");
 			for(int i = 0; i < m_tanList.size(); i++) {
 				TanValue tanValue = m_tanList.get(i);
-				writer.printf("%d %s\n", i, tanValue.password);
+				writer.printf("%d %s\n", i+1, tanValue.password);
 			}
 			writer.close();
 		} catch (Exception e) {

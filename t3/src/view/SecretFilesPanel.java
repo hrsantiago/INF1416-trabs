@@ -45,6 +45,8 @@ private static final long serialVersionUID = -7871019104393430384L;
 
 	private JTable m_table;
 	private DefaultTableModel m_tableModel;
+	private JTextField m_pathField;
+	private JTextField m_passphraseField;
 
 	private User m_currentUser;
 	private PanelCloseListener m_pcl;
@@ -65,11 +67,11 @@ private static final long serialVersionUID = -7871019104393430384L;
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
 		add(new JLabel("Frase secreta:"));
-		JTextField passphraseField = new JTextField("teste123");
-		add(passphraseField);
+		m_passphraseField = new JTextField("teste123");
+		add(m_passphraseField);
 		
 		add(new JLabel("Caminho da pasta:"));
-		JTextField m_pathField = new JTextField("./Files");
+		m_pathField = new JTextField("./Files");
 		add(m_pathField);
 
 		JButton listButton = new JButton("Listar");
@@ -78,7 +80,7 @@ private static final long serialVersionUID = -7871019104393430384L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				m_manager.addRegistry(8003, m_currentUser.getLogin());
-				byte[] index = decryptFile(m_pathField.getText(), "index", passphraseField.getText()); 
+				byte[] index = decryptFile(m_pathField.getText(), "index", m_passphraseField.getText(), true); 
 				if(index != null) {
 					m_manager.addRegistry(8007, m_currentUser.getLogin());
 					try {
@@ -94,7 +96,7 @@ private static final long serialVersionUID = -7871019104393430384L;
 		
 		add(listButton);
 		
-		Object columnNames[] = { "Nome", "Assinatura Digital", "Envelope Digital" };
+		Object columnNames[] = { "Nome Codigo", "Nome Secreto", "Dono", "Grupo", "Status" };
 		m_tableModel = new DefaultTableModel(columnNames, 0);
 		m_table = new JTable(m_tableModel);
 		
@@ -110,7 +112,7 @@ private static final long serialVersionUID = -7871019104393430384L;
 				System.out.println("Linha selecionada: "+ String.valueOf(row));
 				if (row != -1) {
 					Object[] obj = dataList.get(row);
-					byte[] data = decryptFile(m_pathField.getText(), (String)obj[0], passphraseField.getText());
+					byte[] data = decryptFile(m_pathField.getText(), (String)obj[0], m_passphraseField.getText(), true);
 
 					try {
 						FileOutputStream out = new FileOutputStream(m_pathField.getText() + "/" + (String)obj[1]);
@@ -145,17 +147,19 @@ private static final long serialVersionUID = -7871019104393430384L;
 		for(String row : rows) {
 			String[] data = row.split(" ");
 			if(data.length > 2){
+				String status = (decryptFile(m_pathField.getText(), data[0], m_passphraseField.getText(), false) != null) ? "OK" : "NOT OK";
 				Object[] dataRow = data;
-				m_tableModel.addRow(new Object[] {data[1], data[0] + ".env", data[0] + ".asd"});
+				m_tableModel.addRow(new Object[] {data[0], data[1], data[2], data[3], status});
 				dataList.add(dataRow);
 			}
 		}
 	}
 	
-	private byte[] decryptFile(String path, String name, String passphrase) {
+	private byte[] decryptFile(String path, String name, String passphrase, boolean shout) {
 		
 		try {
-			m_manager.addRegistry(8008, m_currentUser.getLogin(), name);
+			if(shout)
+				m_manager.addRegistry(8008, m_currentUser.getLogin(), name);
 			
 			byte[] envData = Files.readAllBytes(Paths.get(path + "/" + name + ".env"));
 			PrivateKey privkey = User.getPrivateKeyObject(m_currentUser.getPrivateKey(), passphrase);
@@ -178,10 +182,10 @@ private static final long serialVersionUID = -7871019104393430384L;
 			
 			byte[] plainIndexData = cipher.doFinal(indexData);
 			
-			m_manager.addRegistry(8009, m_currentUser.getLogin(), name);
+			if(shout)
+				m_manager.addRegistry(8009, m_currentUser.getLogin(), name);
 
-			Path pathCertificate = Paths.get(m_currentUser.getCertificate());
-			byte[] pubbytes = Files.readAllBytes(pathCertificate);
+			byte[] pubbytes = m_currentUser.getCertificate().getBytes("UTF-8");
 			InputStream inStream = new ByteArrayInputStream(pubbytes); 
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
 			X509Certificate signercert = (X509Certificate)cf.generateCertificate(inStream);
@@ -192,25 +196,41 @@ private static final long serialVersionUID = -7871019104393430384L;
 			
 			byte[] sigData = Files.readAllBytes(Paths.get(path + "/" + name + ".asd"));
 			if(!sig.verify(sigData)) {
-				JOptionPane.showMessageDialog(null, name + " pode ter sido adulterada!");
-				m_manager.addRegistry(8012, m_currentUser.getLogin(), name);
+				if(shout){
+					JOptionPane.showMessageDialog(null, name + " pode ter sido adulterada!");
+					m_manager.addRegistry(8012, m_currentUser.getLogin(), name);
+				}
+				return null;
 			}
 			else {
-				m_manager.addRegistry(8010, m_currentUser.getLogin(), name);
+				if(shout)
+					m_manager.addRegistry(8010, m_currentUser.getLogin(), name);
 			}
 			return plainIndexData;
 			
 		} catch (NoSuchPaddingException e) {
-			m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
+			if(shout){
+				JOptionPane.showMessageDialog(null, "Falha na decriptação");
+				m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
+			}
 			e.printStackTrace();
 		} catch (InvalidKeyException e) {
-			m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
+			if(shout) {
+				JOptionPane.showMessageDialog(null, "Falha na decriptação");
+				m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
+			}
 			e.printStackTrace();
 		} catch (IllegalBlockSizeException e) {
-			m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
+			if(shout) {
+				JOptionPane.showMessageDialog(null, "Falha na decriptação");
+				m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
+			}
 			e.printStackTrace();
 		} catch (BadPaddingException e) {
-			m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
+			if(shout) {
+				JOptionPane.showMessageDialog(null, "Falha na decriptação");
+				m_manager.addRegistry(8011, m_currentUser.getLogin(), name);
+			}
 			e.printStackTrace();
 		} 
 		catch (Exception e) { e.printStackTrace(); }

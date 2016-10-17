@@ -209,6 +209,7 @@ public class Window extends JFrame implements DigitalKeyboardListener, Restricte
 
 			if(m_currentUser.isBlocked()) {
 				m_manager.addRegistry(3008, m_currentUser.getLogin());
+				m_manager.addRegistry(3002, m_currentUser.getLogin());
 				m_currentUser = null;
 				JOptionPane.showMessageDialog(null, "User blocked!");
 				createLoginPanel();

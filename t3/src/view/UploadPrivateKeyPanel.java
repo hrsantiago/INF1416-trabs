@@ -127,8 +127,7 @@ public class UploadPrivateKeyPanel extends JPanel {
 			sig.update(testArray);
 			byte[] ds = sig.sign();
 			
-			Path pathCertificate = Paths.get(m_currentUser.getCertificate());
-			byte[] pubbytes = Files.readAllBytes(pathCertificate);
+			byte[] pubbytes = m_currentUser.getCertificate().getBytes("UTF-8");
 			InputStream inStream = new ByteArrayInputStream(pubbytes); 
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
 			X509Certificate signercert = (X509Certificate)cf.generateCertificate(inStream);

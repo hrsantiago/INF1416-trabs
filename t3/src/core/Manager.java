@@ -245,7 +245,7 @@ public class Manager
 			User user = new User(name, login, group, plainPassword, certificatePath);
 
 			String insertQuery = "INSERT INTO users(name, login, group_id, password, salt,"
-					+ "certificate, private_key, directory) VALUES (?, ?, ?, ?, ?, ?, ?)";
+					+ "certificate, private_key, directory) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			
 			System.out.println("Insert query: " + insertQuery);
 			PreparedStatement statement = getConnection().prepareStatement(insertQuery);

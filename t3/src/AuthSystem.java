@@ -10,7 +10,7 @@ public class AuthSystem
 			return;
 
 		try {
-			manager.loadSchema();
+			//manager.loadSchema();
 			manager.addRegistry(1001);
 			manager.loadGroups();
 
