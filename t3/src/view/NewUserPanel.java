@@ -128,8 +128,6 @@ public class NewUserPanel extends JPanel {
 				}
 				
 				if(validateFormNewUser()) {
-					
-					// TODO: confirmation displaying certificate data shows log 6004 and 6005
 					User newUser = m_manager.createNewUser(
 						m_nameField.getText(), 
 						m_loginField.getText(), 

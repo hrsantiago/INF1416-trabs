@@ -24,7 +24,7 @@ public class RestrictedArea implements PanelCloseListener {
 	private RestrictedAreaExitListener m_exitListener;
 	
 	private NewUserPanel m_newUserPanel;
-	private JPanel m_uploadKeyPanel;
+	private UploadPrivateKeyPanel m_uploadKeyPanel;
 	private JPanel m_secretFilesPanel;
 	private ExitPanel m_exitPanel;
 	
@@ -178,7 +178,8 @@ public class RestrictedArea implements PanelCloseListener {
 	
 	private void showUploadKeyPanel() {
 		updateHeaderLabel(State.UPLOAD_KEY);
-		//TODO: implementar panel de upload de chave privada
+		m_uploadKeyPanel = new UploadPrivateKeyPanel(m_currentUser, this);
+		frame.add(m_uploadKeyPanel);
 	}
 	
 	private void showSecretFilesPanel() {

@@ -265,4 +265,23 @@ public class Manager
 		}
 		return null;
 	}
+	
+	public boolean updateUserPrivateKey(User user) {
+		try {
+			String updateQuery = "UPDATE users SET private_key = '" + user.getPrivateKey() + "' WHERE login = '" + user.getLogin() + "'";
+			
+			System.out.println("Insert query: " + updateQuery);
+			Statement statement = getConnection().createStatement();
+			statement.setQueryTimeout(30);
+			int ret = statement.executeUpdate(updateQuery);
+			if(ret == 1) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch(SQLException ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
 }
