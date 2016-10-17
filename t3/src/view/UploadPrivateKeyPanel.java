@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
@@ -12,17 +11,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyFactory;
-import java.security.KeyStore.PrivateKeyEntry;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.swing.*;
@@ -31,6 +27,10 @@ import javax.xml.bind.DatatypeConverter;
 import core.Manager;
 import core.User;
 
+/**
+ * UploadPrivateKeyPanel class
+ * Classe auditavel - Logs 70XX
+ */
 public class UploadPrivateKeyPanel extends JPanel {
 
 	private static final long serialVersionUID = -4239328003905582749L;
@@ -51,7 +51,7 @@ public class UploadPrivateKeyPanel extends JPanel {
 		
 		preparePanel();
 		
-		m_manager.addRegistry(6001, m_currentUser.getId());
+		m_manager.addRegistry(7001, m_currentUser.getId());
 	}
 	
 	private void preparePanel() {
@@ -69,6 +69,7 @@ public class UploadPrivateKeyPanel extends JPanel {
 					File selectedFile = fileChooser.getSelectedFile();
 					System.out.println(selectedFile.getPath());
 					if(!selectedFile.getName().endsWith(".key")){
+						m_manager.addRegistry(7002, m_currentUser.getId());
 						JOptionPane.showMessageDialog(null, "Arquivo invalido, deve ser um certificado digital .key");
 					} else {
 						JOptionPane.showMessageDialog(null, "Arquivo OK");
@@ -109,6 +110,7 @@ public class UploadPrivateKeyPanel extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				m_manager.addRegistry(7006, m_currentUser.getId());
 				m_pcl.onPanelClose();
 			}
 		});
@@ -160,12 +162,18 @@ public class UploadPrivateKeyPanel extends JPanel {
 			sig.update(testArray);
 			
 			if(sig.verify(ds)){
+				m_manager.addRegistry(7005, m_currentUser.getId());
 				JOptionPane.showMessageDialog(null, "Chave validada!");
 				return true;
 			} else {
+				m_manager.addRegistry(7004, m_currentUser.getId());
 				JOptionPane.showMessageDialog(null, "Chave rejeitada!");
 				return false;
 			}
+		} catch(BadPaddingException ex) {
+			m_manager.addRegistry(7003, m_currentUser.getId());
+			JOptionPane.showMessageDialog(null, "Frase secreta invalida");
+			return false;
 		} catch(Exception ex) {
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Erro na verificação da chave privada");

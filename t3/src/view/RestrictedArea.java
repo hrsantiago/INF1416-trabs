@@ -11,6 +11,10 @@ import javax.swing.*;
 
 import core.*;
 
+/**
+ * RestrictedArea class
+ * Classe auditavel - Logs 50XX
+ */
 public class RestrictedArea implements PanelCloseListener {
 
 	public enum State {
@@ -68,6 +72,8 @@ public class RestrictedArea implements PanelCloseListener {
 		
 		m_headerLabel = new JLabel();
 		frame.add(m_headerLabel);
+		
+		m_manager.addRegistry(5001, m_currentUser.getId());
 	}
 	
 	public void show() {
