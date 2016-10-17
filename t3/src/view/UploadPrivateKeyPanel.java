@@ -121,30 +121,13 @@ public class UploadPrivateKeyPanel extends JPanel {
 	
 	private boolean testKey() {
 		try {
-			Path pathPrivateKey = Paths.get(m_keyPath);
-			byte[] keybytes = Files.readAllBytes(pathPrivateKey);
+			PrivateKey privkey = User.getPrivateKeyObject(m_keyPath, m_passphraseField.getText());
+			if(privkey == null) {
+				m_manager.addRegistry(7003, m_currentUser.getId());
+				JOptionPane.showMessageDialog(null, "Frase secreta invalida");
+				return false;
+			}
 			
-			SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
-            random.setSeed(m_passphraseField.getText().getBytes());
-           
-            KeyGenerator keyGen = KeyGenerator.getInstance("DES");
-            keyGen.init(56, random);
-            Key key = keyGen.generateKey();
-           
-            Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
-            cipher.init(Cipher.DECRYPT_MODE, key);
-           
-            byte[] privKeyBytesBase64 = cipher.doFinal(keybytes);
-            String keyString = new String(privKeyBytesBase64, "UTF8");
-            keyString = keyString.replace("-----BEGIN PRIVATE KEY-----", "");
-            keyString = keyString.replace("-----END PRIVATE KEY-----", "");
-            System.out.println(keyString.trim());
-           
-            byte[] privKeyB = DatatypeConverter.parseBase64Binary(keyString.trim());
-            
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PrivateKey privkey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privKeyB));
-            
 			byte[] testArray = generateTestArray(512);
 	
 			Signature sig = Signature.getInstance("MD5withRSA");
@@ -170,10 +153,6 @@ public class UploadPrivateKeyPanel extends JPanel {
 				JOptionPane.showMessageDialog(null, "Chave rejeitada!");
 				return false;
 			}
-		} catch(BadPaddingException ex) {
-			m_manager.addRegistry(7003, m_currentUser.getId());
-			JOptionPane.showMessageDialog(null, "Frase secreta invalida");
-			return false;
 		} catch(Exception ex) {
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Erro na verificação da chave privada");

@@ -36,6 +36,10 @@ public class RestrictedArea implements PanelCloseListener {
 		m_currentUser = user;
 		m_manager = Manager.getInstance();
 		m_exitListener = exitListener;
+		
+		m_currentUser.setNumAccesses(m_currentUser.getNumAccesses() + 1);
+		m_manager.updateUserCounters(m_currentUser);
+		
 		frame = new JFrame("Area restrita - " + m_currentUser.getGroup().getName());
 		frame.addWindowListener(new WindowListener() {
 			@Override
@@ -173,6 +177,8 @@ public class RestrictedArea implements PanelCloseListener {
 			frame.remove(m_exitPanel);
 			m_exitPanel = null;
 		}
+		
+		updateHeaderLabel(State.MAIN);
 	}
 	
 	

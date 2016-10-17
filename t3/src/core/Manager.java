@@ -274,11 +274,19 @@ public class Manager
 			Statement statement = getConnection().createStatement();
 			statement.setQueryTimeout(30);
 			int ret = statement.executeUpdate(updateQuery);
-			if(ret == 1) {
-				return true;
-			} else {
-				return false;
-			}
+			return ret == 1;
+		} catch(SQLException ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean updateUserCounters(User user) {
+		try {
+			Statement statement = getConnection().createStatement();
+			statement.setQueryTimeout(30);
+			int ret = statement.executeUpdate("UPDATE users SET num_accesses = " + user.getNumAccesses() + ", num_queries = " + user.getNumQueries() + " WHERE login = '" + user.getLogin() + "'");
+			return ret == 1;
 		} catch(SQLException ex) {
 			ex.printStackTrace();
 			return false;

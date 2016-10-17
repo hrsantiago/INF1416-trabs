@@ -3,26 +3,37 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.security.Signature;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import core.Manager;
@@ -53,6 +64,10 @@ private static final long serialVersionUID = -7871019104393430384L;
 	private void preparePanel() {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
+		add(new JLabel("Frase secreta:"));
+		JTextField passphraseField = new JTextField("teste123");
+		add(passphraseField);
+		
 		add(new JLabel("Caminho da pasta:"));
 		JTextField m_pathField = new JTextField("./Files");
 		add(m_pathField);
@@ -63,11 +78,16 @@ private static final long serialVersionUID = -7871019104393430384L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				m_manager.addRegistry(8003, m_currentUser.getId());
-				if(decryptIndex(m_pathField.getText())) {
-					String indexString = "XXXXYYYYZZZZ Teste.doc teste01 gteste\nXXXXYYYYZZZZ Teste.doc teste01 gteste";
-					prepareTable(indexString);
+				byte[] index = decryptFile(m_pathField.getText(), "index", passphraseField.getText()); 
+				if(index != null) {
+					m_manager.addRegistry(8007, m_currentUser.getId());
+					try {
+						prepareTable(new String(index, "UTF8"));
+					} catch (UnsupportedEncodingException e1) {
+						e1.printStackTrace();
+					}
 				} else {
-					//TODO: mensagem de erro no decryptIndex
+					m_manager.addRegistry(8006, m_currentUser.getId());
 				}
 			}
 		});
@@ -90,7 +110,16 @@ private static final long serialVersionUID = -7871019104393430384L;
 				System.out.println("Linha selecionada: "+ String.valueOf(row));
 				if (row != -1) {
 					Object[] obj = dataList.get(row);
-					//TODO: resolver o resto com arquivo que foi selecionado
+					byte[] data = decryptFile(m_pathField.getText(), (String)obj[0], passphraseField.getText());
+
+					try {
+						FileOutputStream out = new FileOutputStream(m_pathField.getText() + "/" + (String)obj[1]);
+						out.write(data);
+						out.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					
 				}
 			}
 		});
@@ -123,15 +152,22 @@ private static final long serialVersionUID = -7871019104393430384L;
 		}
 	}
 	
-	private boolean decryptIndex(String path) {
-		String filename = path + "/index.enc";
+	private byte[] decryptFile(String path, String name, String passphrase) {
 		
 		try {
-			byte[] data = Files.readAllBytes(Paths.get(filename));
-			System.out.println(User.byteToHex(data));
+			m_manager.addRegistry(8008, m_currentUser.getId(), name);
+			
+			byte[] envData = Files.readAllBytes(Paths.get(path + "/" + name + ".env"));
+			PrivateKey privkey = User.getPrivateKeyObject(m_currentUser.getPrivateKey(), passphrase);
+			
+			Cipher cipherEnv = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+			cipherEnv.init(Cipher.DECRYPT_MODE, privkey);
+			byte[] symmetricKey = cipherEnv.doFinal(envData);
+			
+			byte[] indexData = Files.readAllBytes(Paths.get(path + "/" + name + ".enc"));
 			
 			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-			random.setSeed(new String("teste123").getBytes());
+			random.setSeed(symmetricKey);
 			
 			KeyGenerator keyGen = KeyGenerator.getInstance("DES");
 		    keyGen.init(56, random);
@@ -140,14 +176,45 @@ private static final long serialVersionUID = -7871019104393430384L;
 			Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
 			cipher.init(Cipher.DECRYPT_MODE, key);
 			
-			byte[] newPlainText = cipher.doFinal(data);
-			System.out.println( new String(newPlainText, "UTF8") );
+			byte[] plainIndexData = cipher.doFinal(indexData);
 			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			m_manager.addRegistry(8009, m_currentUser.getId(), name);
+
+			Path pathCertificate = Paths.get(m_currentUser.getCertificate());
+			byte[] pubbytes = Files.readAllBytes(pathCertificate);
+			InputStream inStream = new ByteArrayInputStream(pubbytes); 
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			X509Certificate signercert = (X509Certificate)cf.generateCertificate(inStream);
+			
+			Signature sig = Signature.getInstance("MD5withRSA");
+			sig.initVerify(signercert.getPublicKey());
+			sig.update(plainIndexData);
+			
+			byte[] sigData = Files.readAllBytes(Paths.get(path + "/" + name + ".asd"));
+			if(!sig.verify(sigData)) {
+				JOptionPane.showMessageDialog(null, name + " pode ter sido adulterada!");
+				m_manager.addRegistry(8012, m_currentUser.getId(), name);
+			}
+			else {
+				m_manager.addRegistry(8010, m_currentUser.getId(), name);
+			}
+			return plainIndexData;
+			
+		} catch (NoSuchPaddingException e) {
+			m_manager.addRegistry(8011, m_currentUser.getId(), name);
 			e.printStackTrace();
-		}
-		return true;
+		} catch (InvalidKeyException e) {
+			m_manager.addRegistry(8011, m_currentUser.getId(), name);
+			e.printStackTrace();
+		} catch (IllegalBlockSizeException e) {
+			m_manager.addRegistry(8011, m_currentUser.getId(), name);
+			e.printStackTrace();
+		} catch (BadPaddingException e) {
+			m_manager.addRegistry(8011, m_currentUser.getId(), name);
+			e.printStackTrace();
+		} 
+		catch (Exception e) { e.printStackTrace(); }
+		return null;
 	}
 	
 }

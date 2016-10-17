@@ -110,8 +110,6 @@ public class NewUserPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				m_manager.addRegistry(6002, m_currentUser.getId());
 
-
-				// TODO: tests with certificate
 				byte[] data;
 				try {
 					Path path = Paths.get(m_certificatePath);
@@ -119,7 +117,6 @@ public class NewUserPanel extends JPanel {
 					InputStream inStream = new ByteArrayInputStream(data); 
 					CertificateFactory cf = CertificateFactory.getInstance("X.509");
 					signercert = (X509Certificate)cf.generateCertificate(inStream);
-					System.out.println(signercert.getVersion() + " " + signercert.getSerialNumber() + " " + signercert.getNotAfter());
 				    inStream.close();
 				} catch (Exception e2) {
 					e2.printStackTrace();
@@ -137,10 +134,11 @@ public class NewUserPanel extends JPanel {
 					);
 					
 					if(newUser != null) {
-						//TODO: create tanList.txt WHERE?
 						try {
 							newUser.createTanList();
-							newUser.saveTanList("./"); // pode me xingar: isso nao se faz auhauahua!
+							newUser.saveTanList("./");
+							
+							JOptionPane.showMessageDialog(null, newUser.getTanListText());
 						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}
@@ -219,7 +217,6 @@ public class NewUserPanel extends JPanel {
 	}
 	
 	private void showErrorMessage(String msg) {
-		//m_manager.addRegistry(6005, m_currentUser.getId());
 		JOptionPane.showMessageDialog(null, msg);
 	}
 }

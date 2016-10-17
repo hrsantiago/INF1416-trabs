@@ -1,8 +1,18 @@
 package core;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.xml.bind.DatatypeConverter;
+
 import java.sql.*;
 
 public class User
@@ -224,6 +234,15 @@ public class User
 		statement.executeBatch();
 	}
 	
+	public String getTanListText() {
+		String str = "";
+		for(int i = 0; i < m_tanList.size(); i++) {
+			TanValue tanValue = m_tanList.get(i);
+			str += String.format("%d %s\n", i, tanValue.password);
+		}
+		return str;
+	}
+	
 	public void saveTanList(String path) {
 		String filename = m_login + "-tan.txt";
 		PrintWriter writer;
@@ -237,5 +256,38 @@ public class User
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static PrivateKey getPrivateKeyObject(String keyPath, String passphrase) {
+		
+		try {
+			Path pathPrivateKey = Paths.get(keyPath);
+			byte[] keybytes = Files.readAllBytes(pathPrivateKey);
+			SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+	        random.setSeed(passphrase.getBytes());
+	       
+	        KeyGenerator keyGen = KeyGenerator.getInstance("DES");
+	        keyGen.init(56, random);
+	        Key key = keyGen.generateKey();
+	       
+	        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+	        cipher.init(Cipher.DECRYPT_MODE, key);
+	       
+	        byte[] privKeyBytesBase64 = cipher.doFinal(keybytes);
+	        String keyString = new String(privKeyBytesBase64, "UTF8");
+	        keyString = keyString.replace("-----BEGIN PRIVATE KEY-----", "");
+	        keyString = keyString.replace("-----END PRIVATE KEY-----", "");
+	        System.out.println(keyString.trim());
+	       
+	        byte[] privKeyB = DatatypeConverter.parseBase64Binary(keyString.trim());
+	        
+	        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+	        PrivateKey privkey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privKeyB));
+	        return privkey;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
